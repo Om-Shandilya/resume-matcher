@@ -28,11 +28,8 @@ Traditional job applications are inefficient — resumes are often overlooked, a
 ## 🔁 Dual Functionality
 
 ```text
-               +---------------------+          +------------------------+
-               |  Job Seeker Mode    |          |  Recruiter Mode        |
-               +---------------------+          +------------------------+
-               | Input: Resume       |          | Input: Job Description |
-               |                     |          |                        |
-               | Output: Ranked List |          | Output: Ranked Resumes |
-               | of Job Descriptions |          | (Best Fit Candidates)  |
-               +---------------------+          +------------------------+
+              | Mode              | Input                    | Output                           |
+|-------------------|--------------------------|-----------------------------------|
+| 🎯 **Job Seeker** | Resume                   | Ranked list of job descriptions  |
+| 🧑‍💼 **Recruiter** | Job description          | Ranked resumes (best-fit candidates) |
+
