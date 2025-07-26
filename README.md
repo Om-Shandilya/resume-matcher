@@ -25,11 +25,12 @@ Traditional job applications are inefficient — resumes are often overlooked, a
 
 ---
 
-## 🔁 Dual Functionality
+### 🔄 Dual Functionality
 
-```text
-              | Mode              | Input                    | Output                           |
-|-------------------|--------------------------|-----------------------------------|
-| 🎯 **Job Seeker** | Resume                   | Ranked list of job descriptions  |
-| 🧑‍💼 **Recruiter** | Job description          | Ranked resumes (best-fit candidates) |
+- **Job Seeker Mode**  
+  - **Input:** Resume (PDF or text)  
+  - **Output:** Ranked list of matching job descriptions based on skills, experience, and keywords
 
+- **Recruiter Mode**  
+  - **Input:** Job description  
+  - **Output:** Ranked list of candidate resumes that best fit the role
