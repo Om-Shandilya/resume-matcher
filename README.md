@@ -34,3 +34,12 @@ Traditional job applications are inefficient — resumes are often overlooked, a
 - **Recruiter Mode**  
   - **Input:** Job description  
   - **Output:** Ranked list of candidate resumes that best fit the role
+
+## 📁 Dataset Not Included
+
+This repo does **not** include the `Resume.csv` dataset due to file size limits.
+
+To use this project:
+1. Download the dataset manually from [Kaggle](https://www.kaggle.com/datasets/snehaanbhawal/resume-dataset)
+2. Place it in the `data/raw/resumes` directory.
+3. You're good to go!
