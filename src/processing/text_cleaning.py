@@ -81,10 +81,12 @@ def clean_column(
         DataFrame with updated or new column
     """
 
-    if new_column is None:
-        new_column = column_name + '_cleaned'
+    # Check if column name is specified or not and act accordingly
+    if new_column_name is None:
+        new_column_name = column_name + '_cleaned'
 
-    df[new_column] = df[column_name].apply(
+    # Apply clean_text() to all entries in the specified column
+    df[new_column_name] = df[column_name].apply(
         lambda x: clean_text(
             x,
             keep_numbers=keep_numbers,
