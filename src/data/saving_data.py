@@ -8,7 +8,7 @@ def _cleanup_old_versions(base_filename: str, directory: str, max_versions: int)
     """
     Remove old files that match the base_filename pattern beyond the latest `max_versions`.
 
-    Parameters:
+    Args:
         base_filename (str): The base filename prefix to match.
         directory (str): The directory to look in.
         max_versions (int): The number of recent files to keep.
@@ -28,12 +28,12 @@ def _cleanup_old_versions(base_filename: str, directory: str, max_versions: int)
 def save_dataset(df: pd.DataFrame,
                  base_filename: str,
                  max_versions: int = 5,
-                 directory: str = "../../data/processed") -> str:
+                 directory: str = "../../data/processed"):
     """
     Save a DataFrame to the specified directory with a timestamped filename.
     Keeps only the latest `max_versions` files for each base_filename.
     
-    Parameters:
+    Args:
         df (pd.DataFrame): The DataFrame to save.
         base_filename (str): The base name for the file (e.g., "resumes_cleaned").
         max_versions (int): How many recent files to keep.
