@@ -53,25 +53,3 @@ def load_job_data(path="data/raw/job_descriptions/Job_Descriptions.csv",
         df = df.sample(n=sample_size, random_state=42)
 
     return df
-
-def load_and_prepare_data(
-    resume_path="data/raw/resumes/Resume.csv",
-    job_path="data/raw/job_descriptions/Job_Descriptions.csv",
-    sample_size=None,
-    resume_count=None):
-
-    """
-    Loads both resume and job data, standardizes and returns them as separate DataFrames.
-
-    Args:
-        resume_path (str): Path to the resume CSV file.
-        job_path (str): Path to the job descriptions CSV file.
-        sample_size (int): Number of job descriptions to sample.
-
-    Returns:
-        Tuple[pd.DataFrame, pd.DataFrame]: Cleaned resume and job description DataFrames.
-    """
-    df_resumes = load_resume_data(resume_path)
-    df_jobs = load_job_data(job_path, sample_size, resume_count)
-
-    return df_resumes, df_jobs
