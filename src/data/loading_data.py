@@ -1,6 +1,6 @@
 import pandas as pd
 
-def load_resume_data(path="data/raw/resumes/Resume.csv"):
+def load_resume_data(path="../../data/raw/resumes/Resume.csv"):
     """
     Loads desired resume data from a CSV file.
     
@@ -21,7 +21,7 @@ def load_resume_data(path="data/raw/resumes/Resume.csv"):
 
     return df                                                   
 
-def load_job_data(path="data/raw/job_descriptions/Job_Descriptions.csv", 
+def load_job_data(path="../../data/raw/job_descriptions/Job_Descriptions.csv", 
                   sample_size=None,
                   resume_count=None):
     """
