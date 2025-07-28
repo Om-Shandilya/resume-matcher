@@ -21,7 +21,7 @@ def clean_text(
         text (str): The input text to clean.
         remove_stopwords (bool): Whether to remove stopwords.
         apply_lemmatization (bool): Whether to apply lemmatization.
-        keep_numbers (bool): Whether to keep numerical digits.
+        remove_numbers (bool): Whether to remove/keep number.
 
     Returns:
         str: The cleaned text.
@@ -63,22 +63,22 @@ def clean_column(
     df: pd.DataFrame,
     column_name: str,
     new_column_name: Optional[str] = None,
-    keep_numbers: bool = False,
+    remove_numbers: bool = True,
     remove_stopwords: bool = True,
     apply_lemmatization: bool = True):
     """
     Applies clean_text to an entire column of a DataFrame.
 
     Parameters:
-        df: pandas DataFrame
-        column_name: str, the column to clean
-        remove_stopwords: bool, whether to remove stopwords
-        apply_lemmatization: bool, whether to apply lemmatization
-        keep_numbers: bool, whether to keep numbers
+        df: pandas DataFrame.
+        column_name: str, the column to clean.
+        remove_stopwords: bool, whether to remove stopwords.
+        apply_lemmatization: bool, whether to apply lemmatization.
+        remove_numbers: bool, whether to keep /remove numbers.
         new_column_name: str or None, where to save cleaned column. If None, overwrite original.
 
     Returns:
-        DataFrame with updated or new column
+        DataFrame with updated or new column.
     """
 
     # Check if column name is specified or not and act accordingly
@@ -89,9 +89,9 @@ def clean_column(
     df[new_column_name] = df[column_name].apply(
         lambda x: clean_text(
             x,
-            keep_numbers=keep_numbers,
-            remove_stopwords=remove_stopwords,
-            apply_lemmatization=apply_lemmatization
+            remove_numbers = remove_numbers,
+            remove_stopwords = remove_stopwords,
+            apply_lemmatization = apply_lemmatization
         )
     )
     return df
