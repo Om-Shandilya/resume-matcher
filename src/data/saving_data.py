@@ -4,7 +4,7 @@ from datetime import datetime
 import pandas as pd
 
 
-def _cleanup_old_versions(base_filename: str, directory: str, max_versions: int):
+def _cleanup_old_versions(base_filename: str, max_versions: int = 5, directory: str = "../../data/processed"):
     """
     Remove old files that match the base_filename pattern beyond the latest `max_versions`.
 
@@ -20,9 +20,9 @@ def _cleanup_old_versions(base_filename: str, directory: str, max_versions: int)
     for old_file in files[max_versions:]:
         try:
             os.remove(old_file)
-            print(f"🗑️ Deleted old file: {old_file}")
+            print(f"🗑️ Deleted old file(s): {old_file}")
         except Exception as e:
-            print(f"⚠️ Error deleting {old_file}: {e}")
+            print(f"⚠️ Faced error while deleting {old_file}, error: {e}")
 
 
 def save_dataset(df: pd.DataFrame,
@@ -53,9 +53,9 @@ def save_dataset(df: pd.DataFrame,
 
     # Save the DataFrame
     df.to_csv(filepath, index=False, encoding="utf-8")
-    print(f"✅ Saved: {filepath}")
+    print(f"✅ The dataframe has been saved at: {filepath}")
 
     # Clean up old versions
-    _cleanup_old_versions(base_filename, directory, max_versions)
+    _cleanup_old_versions(base_filename, max_versions, directory)
 
     return filepath
