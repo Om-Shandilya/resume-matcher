@@ -210,3 +210,4 @@ __marimo__/
 Resume.csv
 job_descriptions.csv
 understanding_data.ipynb
+data/processed/*.csv
