@@ -2,8 +2,14 @@ import re
 import string
 import pandas as pd
 from typing import Optional
+import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
+
+# Download necessary NLTK resources
+nltk.download('stopwords')
+nltk.download('wordnet')
+nltk.download('omw-1.4')
 
 # Initialize lemmatizer and stopwords
 lemmatizer = WordNetLemmatizer()
