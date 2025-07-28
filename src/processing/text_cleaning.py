@@ -3,6 +3,8 @@ import string
 import pandas as pd
 from typing import Optional
 import nltk
+from nltk import pos_tag
+from nltk.corpus import wordnet
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 
@@ -10,10 +12,31 @@ from nltk.stem import WordNetLemmatizer
 nltk.download('stopwords')
 nltk.download('wordnet')
 nltk.download('omw-1.4')
+nltk.download('averaged_perceptron_tagger')
 
 # Initialize lemmatizer and stopwords
 lemmatizer = WordNetLemmatizer()
 stop_words = set(stopwords.words("english"))
+
+def get_wordnet_pos(tag):
+    """
+    Map NLTK POS tags to WordNet POS tags for better lemmatization.
+
+    args:
+        tag (str): NLTK POS tag which is a Treebank tag so we just look at the first letter 
+                   to get the simpler WordNet POS tag.
+    """
+
+    if tag.startswith('J'):                 # Recognize adjectives
+        return wordnet.ADJ
+    elif tag.startswith('V'):               # Recognize verbs
+        return wordnet.VERB
+    elif tag.startswith('N'):               # Recognize nouns
+        return wordnet.NOUN
+    elif tag.startswith('R'):               # Recognize adverbs
+        return wordnet.ADV
+    else:
+        return wordnet.NOUN                 # Else set default to noun
 
 def clean_text(
     text: str,
@@ -61,7 +84,8 @@ def clean_text(
 
     # Apply lemmatization if requested
     if apply_lemmatization:
-        tokens = [lemmatizer.lemmatize(word) for word in tokens]
+        tagged_tokens = pos_tag(tokens)
+        tokens = [lemmatizer.lemmatize(word, get_wordnet_pos(tag)) for word, tag in tagged_tokens]
 
     return ' '.join(tokens)
 
