@@ -21,7 +21,7 @@ def load_resume_data(path="../../data/raw/resumes/Resume.csv"):
 
     return df                                                   
 
-def load_job_data(path="../../data/raw/job_descriptions/Job_Descriptions.csv", 
+def load_job_data(path="../../data/raw/job_descriptions/job_Descriptions.csv", 
                   sample_size=None,
                   resume_count=None):
     """
