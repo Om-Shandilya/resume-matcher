@@ -84,8 +84,21 @@ def clean_text(
 
     # Apply lemmatization if requested
     if apply_lemmatization:
+        # Tag all tokens at once
         tagged_tokens = pos_tag(tokens)
-        tokens = [lemmatizer.lemmatize(word, get_wordnet_pos(tag)) for word, tag in tagged_tokens]
+
+        # Cache POS-tag to lemmatized word
+        lemmatized_words = []
+        cache = {}
+
+        for word, tag in tagged_tokens:
+            key = (word, tag)
+            if key not in cache:
+                wn_tag = get_wordnet_pos(tag)
+                cache[key] = lemmatizer.lemmatize(word, wn_tag)
+            lemmatized_words.append(cache[key])
+
+        tokens = lemmatized_words
 
     return ' '.join(tokens)
 

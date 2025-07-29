@@ -1,0 +1,15 @@
+name: resume-matcher
+channels:
+  - defaults
+dependencies:
+  - ipykernel
+  - numpy
+  - jupyter
+  - seaborn
+  - tqdm
+  - python=3.10
+  - scikit-learn
+  - matplotlib
+  - pandas
+  - nltk=3.7
+prefix: C:\Users\spike\miniconda3\envs\resume-matcher
