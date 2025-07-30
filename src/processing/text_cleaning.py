@@ -7,6 +7,7 @@ from nltk import pos_tag
 from nltk.corpus import wordnet
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
+import unicodedata
 
 # Download necessary NLTK resources
 nltk.download('stopwords')
@@ -57,10 +58,19 @@ def clean_text(
     """
 
     if pd.isnull(text):
-        return ""
+        return ''
 
     # Convert to lowercase
     text = text.lower()
+
+    # # Normalize em dashes and similar
+    # text = re.sub(r'[–—‒−]', ' ', text)
+
+    # Optionally normalize all unicode to ASCII
+    text = unicodedata.normalize("NFKD", text).encode('ascii', 'ignore').decode('utf-8')
+
+    # Replace "/" with a space
+    text = text.replace('/', ' ')
 
     # Remove punctuation
     text = text.translate(str.maketrans('', '', string.punctuation))
@@ -68,12 +78,12 @@ def clean_text(
     # Remove HTML tags
     text = re.sub(r'<.*?>', '', text)
 
-    # Remove extra whitespace
-    text = re.sub(r'\s+', ' ', text).strip()
-
     # Optionally remove numbers
     if remove_numbers:
         text = re.sub(r'\d+', '', text)
+
+    # Remove extra whitespace
+    text = re.sub(r'\s+', ' ', text).strip()
 
     # Tokenize by whitespace
     tokens = text.split()
