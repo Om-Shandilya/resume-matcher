@@ -147,4 +147,5 @@ def clean_column(
             apply_lemmatization = apply_lemmatization
         )
     )
+    print(f"✅ Cleaned column '{column_name}' and saved cleaned data to '{new_column_name}' column.")
     return df

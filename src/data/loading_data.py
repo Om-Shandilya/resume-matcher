@@ -19,6 +19,7 @@ def load_resume_data(path="../../data/raw/resumes/Resume.csv"):
     # 3. Rename columns to 'role' and 'text'          
     df.columns = ['role', 'text']  
 
+    print(f"✅ Loaded {len(df)} resumes from {path}")
     return df                                                   
 
 def load_job_data(path="../../data/raw/job_descriptions/job_Descriptions.csv", 
@@ -51,5 +52,5 @@ def load_job_data(path="../../data/raw/job_descriptions/job_Descriptions.csv",
     # 5. Randomly sample job descriptions if sample_size is specified
     if sample_size is not None:
         df = df.sample(n=sample_size, random_state=42)
-
+    print(f"✅ Loaded {len(df)} job descriptions from {path}")
     return df
