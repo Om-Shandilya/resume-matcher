@@ -1,4 +1,6 @@
 import pandas as pd
+import os
+from src.processing.text_cleaning import clean_column
 
 def load_resume_data(path="../data/raw/resumes/Resume.csv"):
     """
@@ -53,4 +55,34 @@ def load_job_data(path="../data/raw/job_descriptions/job_Descriptions.csv",
     if sample_size is not None:
         df = df.sample(n=sample_size, random_state=42)
     print(f"✅ Loaded {len(df)} job descriptions from {path}")
+    return df
+
+
+
+def load_or_clean_resume_data(cleaned_path="../data/processed/resumes_cleaned.csv", 
+                              raw_path="../data/raw/resumes/Resume.csv"):
+    
+    
+    if os.path.exists(cleaned_path):
+        df = pd.read_csv(cleaned_path)
+        print(f"✅ Loaded cleaned resume data from {cleaned_path}")
+    else:
+        df = load_resume_data(raw_path)
+        df = clean_column(df, column_name='text', new_column_name='text_cleaned')
+        df.to_csv(cleaned_path, index=False)
+        print(f"🧼 Cleaned and saved resume data to {cleaned_path}")
+    return df
+
+def load_or_clean_job_data(cleaned_path="../data/processed/jobs_cleaned.csv", 
+                           raw_path="../data/raw/job_descriptions/job_Descriptions.csv", sample_size=None):
+    
+    
+    if os.path.exists(cleaned_path):
+        df = pd.read_csv(cleaned_path)
+        print(f"✅ Loaded cleaned job description data from {cleaned_path}")
+    else:
+        df = load_job_data(raw_path, sample_size=sample_size)
+        df = clean_column(df, column_name='text', new_column_name='text_cleaned')
+        df.to_csv(cleaned_path, index=False)
+        print(f"🧼 Cleaned and saved job description data to {cleaned_path}")
     return df

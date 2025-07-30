@@ -1,3 +1,5 @@
+import os
+from datetime import datetime
 import pandas as pd
 from collections import Counter
 from wordcloud import WordCloud
@@ -7,10 +9,59 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
 import seaborn as sns
 
+def handle_plot(save_path: str = '../data/saved_plots', 
+                filename: str = None, 
+                label: str = None,
+                add_timestamp: bool = True,
+                show_plot: bool = True):
+    """
+    Handles saving or displaying a plot based on provided parameters, with optional timestamp in filename.
+
+    Args:
+        save_path (str): Directory to save the plot. 
+        filename (str): Name of the file to save the plot (e.g., 'plot.png'). If None, the plot will be displayed.
+        label (str): [Required with {filename} to save] Label to prepend to the filename (e.g., 'jobs', 'resumes').
+                     If None, the plot will be displayed instead.
+        add_timestamp (bool): Whether to add a timestamp to the filename. Default is True.
+
+    Returns:
+        None: Displays the plot or saves it to the specified path.
+    """
+    if label and filename:
+        os.makedirs(save_path, exist_ok=True)
+        base, ext = os.path.splitext(filename)
+
+        if not ext:
+            ext = ".png"
+
+        # Add label if given
+        label_prefix = f"{label}_" if label else ""
+
+        # Add timestamp if requested
+        timestamp_suffix = f"_{datetime.now().strftime('%d-%m-%Y_%H-%M-%S')}" if add_timestamp else ""
+
+        # Final filename
+        final_name = f"{label_prefix}{base}{timestamp_suffix}{ext}"
+        save_full_path = os.path.join(save_path, final_name)
+
+        plt.tight_layout()
+        plt.savefig(save_full_path, bbox_inches='tight')
+        plt.close()
+        print(f"Plot saved to: {save_full_path}")
+
+        if show_plot:
+            plt.show()
+            
+    else:
+        plt.tight_layout()
+        plt.show()
+
 def visualize_word_frequency(
         df: pd.DataFrame,
         column_to_visualize: str ='text_cleaned',
-        number_of_words: int = 30):
+        number_of_words: int = 30,
+        save_path: str = '../data/saved_plots/word_frequencies',
+        plot_label: str = None):
     """
     Visualizes word frequency in a specified column of a DataFrame.
 
@@ -41,14 +92,17 @@ def visualize_word_frequency(
     plt.bar(top_words.keys(), top_words.values())
     plt.xlabel("words")
     plt.ylabel("frequency")
-    plt.xticks(rotation=45)
+    plt.xticks(rotation=45, ha='right')
+    plt.tight_layout()
     plt.title(f"Top {number_of_words} Words in Resume Corpus")
-    plt.show()
+    handle_plot(save_path, filename = f'word_freq_top_{number_of_words}.png', label=plot_label)
 
 
 def plot_wordcloud(
         df: pd.DataFrame,
-        column_to_visualize: str ='text_cleaned'):
+        column_to_visualize: str ='text_cleaned',
+        save_path: str = '../data/saved_plots/wordclouds',
+        plot_label: str = None,):
     """
     Visualizes a word cloud from a specified column of a DataFrame.
 
@@ -71,14 +125,16 @@ def plot_wordcloud(
     plt.figure(figsize=(12, 6))
     plt.imshow(wordcloud, interpolation='bilinear')
     plt.axis('off')
-    plt.title("Resume WordCloud")
-    plt.show()
+    plt.title("WordCloud")
+    handle_plot(save_path, f'wordcloud.png', label=plot_label)
 
 
 def plot_length_distribution(
         df: pd.DataFrame,
         column_to_visualize: str ='text_cleaned',
-        number_of_bins: int = 30):
+        number_of_bins: int = 30,
+        save_path: str = '../data/saved_plots/length_distributions',
+        plot_label: str = None):
     """
     Visualizes the distribution of text lengths in a specified column of a DataFrame.
 
@@ -91,22 +147,24 @@ def plot_length_distribution(
     """
 
     # Create a new column with the length of each text
-    df['text_len'] = df[column_to_visualize].apply(lambda x: len(x.split()) if isinstance(x, str) else 0)
+    text_lens = df[column_to_visualize].apply(lambda x: len(x.split()) if isinstance(x, str) else 0)
 
 
     # Plot length distributions
     plt.figure(figsize=(10, 4))
-    plt.hist(df['text_len'], bins=number_of_bins, alpha=0.7)
+    plt.hist(text_lens, bins=number_of_bins, alpha=0.7)
     plt.xlabel("Number of Words")
     plt.ylabel("Frequency")
     plt.title("Document Length Distribution")
-    plt.show()
+    handle_plot(save_path, f'length_distribution.png', label=plot_label)
 
 
 def plot_similarity_heatmat(df: pd.DataFrame,
-                          column_to_visualize: str ='text_cleaned',
-                          number_of_samples: int = 100,
-                          max_features: int = 100):
+                            column_to_visualize: str ='text_cleaned',
+                            number_of_samples: int = 100,
+                            max_features: int = 100,
+                            save_path: str = '../data/saved_plots/similarity_heatmaps',
+                            plot_label: str = None):
     """
     Visualizes the cosine similarity heatmap of documents in a specified column of a DataFrame.
 
@@ -130,13 +188,15 @@ def plot_similarity_heatmat(df: pd.DataFrame,
     similarity_matrix = cosine_similarity(tfidf_matrix)
     sns.heatmap(similarity_matrix, cmap='coolwarm')
     plt.title("Resume-to-Resume Similarity Heatmap")
-    plt.show()
+    handle_plot(save_path, f'similarity_heatmap.png', label=plot_label)
 
 def top_words_by_category(df: pd.DataFrame,
                           text_column: str,
                           category_column: str,
-                          number_of_categories: int = 10,
-                          number_of_words: int = 10):
+                          number_of_categories: int = 5,
+                          number_of_words: int = 10,
+                          save_path: str = '../data/saved_plots/top_words_by_categories',
+                          plot_label: str = None):
     """
     Visualizes the top words in each of the most frequent categories of a DataFrame.
 
@@ -173,7 +233,7 @@ def top_words_by_category(df: pd.DataFrame,
         # Plot
         plt.figure(figsize=(10, 4))
         plt.bar(top_n.keys(), top_n.values(), color='teal')
-        plt.title(f"Top {number_of_words} Words in '{cat}'")
+        plt.title(f"Top {number_of_words} Words in '{cat}' ({plot_label.capitalize()})")
         plt.xticks(rotation=45)
         plt.tight_layout()
-        plt.show()
+        handle_plot(save_path, f"top_{number_of_words}_words_in_{cat.replace(' ', '_')}.png", label=plot_label)
