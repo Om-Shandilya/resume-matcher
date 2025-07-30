@@ -1,4 +1,5 @@
 import os
+import re
 from datetime import datetime
 import pandas as pd
 from collections import Counter
@@ -236,4 +237,5 @@ def top_words_by_category(df: pd.DataFrame,
         plt.title(f"Top {number_of_words} Words in '{cat}' ({plot_label.capitalize()})")
         plt.xticks(rotation=45)
         plt.tight_layout()
-        handle_plot(save_path, f"top_{number_of_words}_words_in_{cat.replace(' ', '_')}.png", label=plot_label)
+        safe_cat = re.sub(r'[^\w\-_.]', '_', cat)
+        handle_plot(save_path, filename = f"top_{number_of_words}_words_in_{safe_cat}.png", label=plot_label)
