@@ -1,5 +1,7 @@
 import pandas as pd
 import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.getcwd(), '..')))
 from src.processing.text_cleaning import clean_column
 
 def load_resume_data(path="../data/raw/resumes/Resume.csv"):

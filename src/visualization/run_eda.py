@@ -1,4 +1,4 @@
-from visualizing_data import (
+from visualization.visualizing_data import (
     visualize_word_frequency,
     plot_wordcloud,
     plot_length_distribution,
@@ -22,13 +22,8 @@ def visualize_cleaned_data(df_resumes, df_jobs, save_plots=True):
     plot_wordcloud(df_jobs, plot_label=label)
     plot_length_distribution(df_jobs, plot_label=label)
 
-    top_words_by_category(df=df_jobs,
-        text_column='text_cleaned',
-        category_column='role',
-        number_of_categories=5,
-        number_of_words=10,
-        plot_label=label
-    )
+    top_words_by_category(df=df_jobs, text_column='text_cleaned', category_column='title',
+                       number_of_words=10, number_of_categories=5, plot_label="job")
     print("✅ Job Dataset Visualization Complete!")
 
 if __name__ == "__main__":
