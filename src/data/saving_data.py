@@ -28,7 +28,7 @@ def _cleanup_old_versions(base_filename: str, max_versions: int = 5, directory: 
 def save_dataset(df: pd.DataFrame,
                  base_filename: str,
                  max_versions: int = 5,
-                 directory: str = "../../data/processed"):
+                 directory: str = "../data/processed"):
     """
     Save a DataFrame to the specified directory with a timestamped filename.
     Keeps only the latest `max_versions` files for each base_filename.
