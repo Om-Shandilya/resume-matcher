@@ -17,7 +17,7 @@ nltk.download('averaged_perceptron_tagger')
 
 # Initialize lemmatizer and stopwords
 lemmatizer = WordNetLemmatizer()
-stop_words = set(stopwords.words("english"))
+stop_words = set(stopwords.words('english'))
 
 def get_wordnet_pos(tag):
     """
@@ -57,6 +57,7 @@ def clean_text(
         str: The cleaned text.
     """
 
+    # Check if text is None or NaN
     if pd.isnull(text):
         return ''
 
@@ -66,7 +67,7 @@ def clean_text(
     # # Normalize em dashes and similar
     # text = re.sub(r'[–—‒−]', ' ', text)
 
-    # Optionally normalize all unicode to ASCII
+    # Normalize all unicode to ASCII
     text = unicodedata.normalize("NFKD", text).encode('ascii', 'ignore').decode('utf-8')
 
     # Replace "/" with a space

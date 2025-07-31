@@ -212,3 +212,4 @@ job_descriptions.csv
 understanding_data.ipynb
 data/processed/*.csv
 data/saved_plots/
+test_vectorization.py

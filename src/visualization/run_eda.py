@@ -30,6 +30,6 @@ if __name__ == "__main__":
     from src.data.loading_data import load_or_clean_resume_data, load_or_clean_job_data
 
     df_resumes = load_or_clean_resume_data()
-    df_jobs = load_or_clean_job_data(sample_size=2484)
+    df_jobs = load_or_clean_job_data(sample_size=len(df_resumes))
 
     visualize_cleaned_data(df_resumes, df_jobs, save_plots=True)
