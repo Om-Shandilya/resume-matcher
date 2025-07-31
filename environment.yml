@@ -12,4 +12,5 @@ dependencies:
   - matplotlib
   - pandas
   - nltk=3.7
+  - wordcloud
 prefix: C:\Users\spike\miniconda3\envs\resume-matcher

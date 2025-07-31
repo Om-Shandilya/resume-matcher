@@ -66,9 +66,11 @@ def load_or_clean_resume_data(cleaned_path="../data/processed/resumes_cleaned.cs
     
     
     if os.path.exists(cleaned_path):
+        print('📂 Loading cached resume data…')
         df = pd.read_csv(cleaned_path)
         print(f"✅ Loaded cleaned resume data from {cleaned_path}")
     else:
+        print('📂 Loading raw resume data and 🧼 cleaning it…')
         df = load_resume_data(raw_path)
         df = clean_column(df, column_name='text', new_column_name='text_cleaned')
         df.to_csv(cleaned_path, index=False)
@@ -76,13 +78,15 @@ def load_or_clean_resume_data(cleaned_path="../data/processed/resumes_cleaned.cs
     return df
 
 def load_or_clean_job_data(cleaned_path="../data/processed/jobs_cleaned.csv", 
-                           raw_path="../data/raw/job_descriptions/job_Descriptions.csv", sample_size=None):
+                           raw_path="../data/raw/job_descriptions/job_descriptions.csv", sample_size=None):
     
     
     if os.path.exists(cleaned_path):
+        print('📂 Loading cached job data…')
         df = pd.read_csv(cleaned_path)
         print(f"✅ Loaded cleaned job description data from {cleaned_path}")
     else:
+        print('📂 Loading raw job data and 🧼 cleaning it…')
         df = load_job_data(raw_path, sample_size=sample_size)
         df = clean_column(df, column_name='text', new_column_name='text_cleaned')
         df.to_csv(cleaned_path, index=False)

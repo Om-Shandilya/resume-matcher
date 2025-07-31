@@ -44,11 +44,12 @@ def handle_plot(save_path: str = '../data/saved_plots',
         # Final filename
         final_name = f"{label_prefix}{base}{timestamp_suffix}{ext}"
         save_full_path = os.path.join(save_path, final_name)
+        os.makedirs(os.path.dirname(save_full_path), exist_ok=True)
 
         plt.tight_layout()
         plt.savefig(save_full_path, bbox_inches='tight')
         plt.close()
-        print(f"Plot saved to: {save_full_path}")
+        print(f"✅ Plot saved to: {save_full_path}")
 
         if show_plot:
             plt.show()
@@ -57,12 +58,11 @@ def handle_plot(save_path: str = '../data/saved_plots',
         plt.tight_layout()
         plt.show()
 
-def visualize_word_frequency(
-        df: pd.DataFrame,
-        column_to_visualize: str ='text_cleaned',
-        number_of_words: int = 30,
-        save_path: str = '../data/saved_plots/word_frequencies',
-        plot_label: str = None):
+def visualize_word_frequency(df: pd.DataFrame,
+                             column_to_visualize: str ='text_cleaned',
+                             number_of_words: int = 30,
+                             save_path: str = '../data/saved_plots/word_frequencies',
+                             plot_label: str = None): 
     """
     Visualizes word frequency in a specified column of a DataFrame.
 
@@ -70,6 +70,8 @@ def visualize_word_frequency(
         df (pd.DataFrame): DataFrame containing the text data.
         column_to_visualize (str): Column name to visualize. Default is 'text_cleaned'.
         top_words (int): Number of top words to display. Default is 30.
+        save_path (str): Directory to save the heatmap plot.
+        plot_label (str): Label to prepend to the filename when saving the plot.
     
     Returns:
         None: Displays a bar plot of the top specified number of words.
@@ -84,7 +86,6 @@ def visualize_word_frequency(
     word_freq = Counter(all_words.split())
 
     # Top specified number of words
-    # Top specified number of words
     top_words = {word: freq for word, freq in word_freq.most_common(number_of_words) if word.strip() != ""}
 
 
@@ -96,20 +97,24 @@ def visualize_word_frequency(
     plt.xticks(rotation=45, ha='right')
     plt.tight_layout()
     plt.title(f"Top {number_of_words} Words in Resume Corpus")
+
+    # Save or show the plot
     handle_plot(save_path, filename = f'word_freq_top_{number_of_words}.png', label=plot_label)
 
 
-def plot_wordcloud(
-        df: pd.DataFrame,
-        column_to_visualize: str ='text_cleaned',
-        save_path: str = '../data/saved_plots/wordclouds',
-        plot_label: str = None,):
+def plot_wordcloud(df: pd.DataFrame,
+                   column_to_visualize: str ='text_cleaned',
+                   save_path: str = '../data/saved_plots/wordclouds',
+                   plot_label: str = None,):
+        
     """
     Visualizes a word cloud from a specified column of a DataFrame.
 
     Args:
         df (pd.DataFrame): DataFrame containing the text data.
         column_to_visualize (str): Column name to visualize. Default is 'text_cleaned'.
+        save_path (str): Directory to save the heatmap plot.
+        plot_label (str): Label to prepend to the filename when saving the plot.
 
     Returns:
         None: Displays a word cloud of the words in the specified column.
@@ -127,21 +132,25 @@ def plot_wordcloud(
     plt.imshow(wordcloud, interpolation='bilinear')
     plt.axis('off')
     plt.title("WordCloud")
+
+    # Save or show the plot
     handle_plot(save_path, f'wordcloud.png', label=plot_label)
 
 
-def plot_length_distribution(
-        df: pd.DataFrame,
-        column_to_visualize: str ='text_cleaned',
-        number_of_bins: int = 30,
-        save_path: str = '../data/saved_plots/length_distributions',
-        plot_label: str = None):
+def plot_length_distribution(df: pd.DataFrame,
+                             column_to_visualize: str ='text_cleaned',
+                             number_of_bins: int = 30,
+                             save_path: str = '../data/saved_plots/length_distributions',
+                             plot_label: str = None):
     """
     Visualizes the distribution of text lengths in a specified column of a DataFrame.
 
     Args:
         df (pd.DataFrame): DataFrame containing the text data.
         column_to_visualize (str): Column name to visualize. Default is 'text_cleaned'.
+        number_of_bins (int): Number of bins for the histogram. Default is 30.
+        save_path (str): Directory to save the heatmap plot.
+        plot_label (str): Label to prepend to the filename when saving the plot.
 
     Returns:
         None: Displays a histogram of text lengths.
@@ -157,6 +166,8 @@ def plot_length_distribution(
     plt.xlabel("Number of Words")
     plt.ylabel("Frequency")
     plt.title("Document Length Distribution")
+
+    # Save or show the plot
     handle_plot(save_path, f'length_distribution.png', label=plot_label)
 
 
@@ -174,6 +185,8 @@ def plot_similarity_heatmat(df: pd.DataFrame,
         column_to_visualize (str): Column name to visualize. Default is 'text_cleaned'.
         number_of_samples (int): Number of samples to visualize. Default is 100.
         max_features (int): Maximum number of features for TF-IDF vectorization. Default is 100.
+        save_path (str): Directory to save the heatmap plot.
+        plot_label (str): Label to prepend to the filename when saving the plot.
     
     Returns:
         None: Displays a heatmap of cosine similarity between documents.
@@ -189,6 +202,8 @@ def plot_similarity_heatmat(df: pd.DataFrame,
     similarity_matrix = cosine_similarity(tfidf_matrix)
     sns.heatmap(similarity_matrix, cmap='coolwarm')
     plt.title("Resume-to-Resume Similarity Heatmap")
+
+    # Save or show the plot
     handle_plot(save_path, f'similarity_heatmap.png', label=plot_label)
 
 def top_words_by_category(df: pd.DataFrame,
@@ -207,6 +222,8 @@ def top_words_by_category(df: pd.DataFrame,
         category_column (str): Column name containing the category data.
         number_of_categories (int): Number of most frequent categories to visualize. Default is 10.
         number_of_words (int): Number of top words to display for each category. Default is 10.
+        save_path (str): Directory to save the heatmap plot.
+        plot_label (str): Label to prepend to the filename when saving the plot.
 
     Returns:
         None: Displays a bar plot of the top words in each category.
@@ -238,4 +255,6 @@ def top_words_by_category(df: pd.DataFrame,
         plt.xticks(rotation=45)
         plt.tight_layout()
         safe_cat = re.sub(r'[^\w\-_.]', '_', cat)
+
+        # Save or show the plot
         handle_plot(save_path, filename = f"top_{number_of_words}_words_in_{safe_cat}.png", label=plot_label)
