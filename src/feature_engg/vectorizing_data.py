@@ -12,12 +12,14 @@ def get_tfidf_vectorizer(max_features: int = 5000,
     Creates a TF-IDF vectorizer with specified parameters.
     """
     return TfidfVectorizer(
-        max_features=max_features,
-        ngram_range=ngram_range,
-        stop_words='english',
-        lowercase=True,
-        norm='l2')
-
+           stop_words='english',
+           lowercase=True,
+           max_features=7000,        # Slightly larger vocabulary
+           ngram_range=(1, 2),       # Add bigrams to capture phrases
+           min_df=3,                 # Remove ultra-rare tokens
+           max_df=0.85,              # Remove very common tokens
+           norm='l2',                # Normalize for cosine similarity
+    )
 
 def save_vectorizer(vectorizer: TfidfVectorizer, 
                     path: str = '../models/tfidf_vectorizer.pkl'):
@@ -50,8 +52,9 @@ def vectorize_text(df: pd.DataFrame,
                    text_column: str, 
                    label: str,  # e.g., 'resumes' or 'jobs'
                    vectorizer: Optional[TfidfVectorizer] = None,
-                   fit_vectorizer: bool = True, 
-                   save_path: Optional[str] = None):
+                   fit_vectorizer: bool = False, 
+                   save_path: Optional[str] = None,
+                   save_vectorizer_file: bool = False):
     """
     Transforms a DataFrame's text column into TF-IDF features and saves them if a path is provided.
 
@@ -83,7 +86,8 @@ def vectorize_text(df: pd.DataFrame,
 
     if save_path and label:
         save_vector_data(X, os.path.join(save_path, f"{label}_tfidf_matrix.npz"))
-        save_vectorizer(vectorizer, os.path.join(save_path, f"{label}_tfidf_vectorizer.pkl"))
+        if save_vectorizer_file:
+            save_vectorizer(vectorizer, os.path.join(save_path, f"{label}_tfidf_vectorizer.pkl"))
 
     return X, vectorizer
 
