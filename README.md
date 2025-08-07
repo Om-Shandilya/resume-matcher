@@ -43,5 +43,5 @@ To use this project:
 1. Download the datasets manually:
    ↳ Resume dataset used for training [Kaggle](https://www.kaggle.com/datasets/snehaanbhawal/resume-dataset)
    ↳ Job dataset used for training [Kaggle](https://www.kaggle.com/datasets/ravindrasinghrana/job-description-dataset?select=job_descriptions.csv)
-2. Place it in the `data/raw/resumes` directory.
+2. Place resume dataset in the `data/raw/resumes` directory and the jobs dataset in `data/raw/job_descriptions`.
 3. You're good to go!
