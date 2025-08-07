@@ -22,7 +22,7 @@ def get_tfidf_vectorizer(max_features: int = 5000,
     )
 
 def save_vectorizer(vectorizer: TfidfVectorizer, 
-                    path: str = '../models/tfidf_vectorizer.pkl'):
+                    path: str = 'models/dev_tfidf/tfidf_vectorizer.pkl'):
     
     """
     Saves a TfidfVectorizer object to a given path. Appends .pkl if missing.

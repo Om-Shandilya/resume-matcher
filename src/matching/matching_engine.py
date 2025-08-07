@@ -29,8 +29,8 @@ def top_n_matches(similarity_matrix: np.ndarray,
 
 if __name__ == "__main__":
     # Define paths
-    resume_vec_path = "models/tfidf/resumes_tfidf_matrix.npz"
-    job_vec_path = "models/tfidf/jobs_tfidf_matrix.npz"
+    resume_vec_path = "models/dev_tfidf/resumes_tfidf_matrix.npz"
+    job_vec_path = "models/dev_tfidf/jobs_tfidf_matrix.npz"
 
     # Load sparse TF-IDF matrices
     X_resumes = load_vector_data(resume_vec_path)
