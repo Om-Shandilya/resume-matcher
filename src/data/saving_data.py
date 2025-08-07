@@ -4,7 +4,7 @@ from datetime import datetime
 import pandas as pd
 
 
-def _cleanup_old_versions(base_filename: str, max_versions: int = 2, directory: str = "../../data/processed"):
+def _cleanup_old_versions(base_filename: str, max_versions: int = 2, directory: str = "data/processed"):
     """
     Remove old files that match the base_filename pattern beyond the latest `max_versions`.
 
@@ -28,7 +28,7 @@ def _cleanup_old_versions(base_filename: str, max_versions: int = 2, directory: 
 def save_dataset(df: pd.DataFrame,
                  base_filename: str,
                  max_versions: int = 2,
-                 directory: str = "../data/processed"):
+                 directory: str = "data/processed"):
     """
     Save a DataFrame to the specified directory with a timestamped filename.
     Keeps only the latest `max_versions` files for each base_filename.
