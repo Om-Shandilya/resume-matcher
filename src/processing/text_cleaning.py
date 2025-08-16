@@ -9,11 +9,19 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 import unicodedata
 
-# Download necessary NLTK resources
-nltk.download('stopwords')
-nltk.download('wordnet')
-nltk.download('omw-1.4')
-nltk.download('averaged_perceptron_tagger')
+# Only Download necessary NLTK resources if not already present
+nltk_packages = {
+    "stopwords": "corpora/stopwords",
+    "wordnet": "corpora/wordnet",
+    "averaged_perceptron_tagger": "taggers/averaged_perceptron_tagger",
+    "omw-1.4": "corpora/omw-1.4"
+}
+
+for pkg, path in nltk_packages.items():
+    try:
+        nltk.data.find(path)
+    except LookupError:
+        nltk.download(pkg, quiet=True)
 
 # Initialize lemmatizer and stopwords
 lemmatizer = WordNetLemmatizer()

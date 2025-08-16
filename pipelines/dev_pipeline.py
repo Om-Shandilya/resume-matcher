@@ -6,7 +6,7 @@ from src.data.saving_data import save_dataset
 
 
 # Run this script to execute the entire pipeline: 
-# Using "python -m src.run_pipeline.py" in root directory
+# Using "python -m pipelines.dev_pipeline.py" in root directory
 
 
 # Step 1: Load and Clean resume texts
@@ -25,7 +25,7 @@ save_dataset(df_jobs, base_filename="jobs_cleaned", max_versions=1)
 
 # Step 4: Visualize cleaned and processed data
 # Note: The visualization is optional and can be run separately.
-# In order to visualize the data, we can run the EDA script as "python run_pipeline.py --eda" in bash
+# In order to visualize the data, we can run the EDA script as "python -m pipelines.dev_pipeline.py --eda" in bash
 
 if __name__ == "__main__":
     # Set to True if you want EDA plots
