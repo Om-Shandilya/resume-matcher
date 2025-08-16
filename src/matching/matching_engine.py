@@ -10,7 +10,8 @@ def compute_similarity_matrix(X_resumes, X_jobs ):
     return cosine_similarity(X_resumes, X_jobs)
 
 def top_n_matches(similarity_matrix: np.ndarray, 
-                  top_n: int = 5):
+                  top_n: int = 5,
+                  job_df = None):
     """
     For each resume, get indices of top N matching jobs.
 
@@ -23,8 +24,16 @@ def top_n_matches(similarity_matrix: np.ndarray,
     """
     results = {}
     for i, row in enumerate(similarity_matrix):
-        top_indices = row.argsort()[::-1][:top_n]
-        results[i] = [(j, round(row[j], 4)) for j in top_indices]
+        seen_titles = set()
+        ranked = []
+        for j in row.argsort()[::-1]:  # Sorted indices in descending order
+            title = job_df.iloc[j]['title'] if job_df is not None else j
+            if title not in seen_titles:
+                ranked.append((j, round(row[j], 4)))
+                seen_titles.add(title)
+            if len(ranked) == top_n:
+                break
+        results[i] = ranked
     return results
 
 if __name__ == "__main__":
