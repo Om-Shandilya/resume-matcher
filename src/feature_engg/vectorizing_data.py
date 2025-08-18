@@ -14,12 +14,28 @@ def get_tfidf_vectorizer(max_features: int = 5000,
     return TfidfVectorizer(
            stop_words='english',
            lowercase=True,
-           max_features=7000,        # Slightly larger vocabulary
-           ngram_range=(1, 2),       # Add bigrams to capture phrases
-           min_df=3,                 # Remove ultra-rare tokens
-           max_df=0.85,              # Remove very common tokens
-           norm='l2',                # Normalize for cosine similarity
+           max_features=max_features,        # Slightly larger vocabulary
+           ngram_range=ngram_range,          # Add bigrams to capture phrases
+           min_df=3,                         # Remove ultra-rare tokens
+           max_df=0.85,                      # Remove very common tokens
+           norm='l2',                        # Normalize for cosine similarity
     )
+
+def get_combined_tfidf_vectorizer(max_features: int = 40000, 
+                         ngram_range: Tuple[int, int] = (1, 2)):
+    """
+    Creates a TF-IDF vectorizer with specified parameters for larger vocab with both Jobs and Resume.
+    """
+    return TfidfVectorizer(
+           stop_words="english",
+           lowercase=True,
+           max_features=max_features,      # Balanced for resumes + jobs
+           ngram_range=ngram_range,
+           min_df=5,
+           max_df=0.85,
+           sublinear_tf=True,       # Smooth term frequency scaling
+           norm="l2"         
+)
 
 def save_vectorizer(vectorizer: TfidfVectorizer, 
                     path: str = 'models/dev_tfidf/tfidf_vectorizer.pkl'):
