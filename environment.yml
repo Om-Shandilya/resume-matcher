@@ -13,4 +13,6 @@ dependencies:
   - pandas
   - nltk=3.7
   - wordcloud
+  - python-docx
+  - pdfminer.six
 prefix: C:\Users\spike\miniconda3\envs\resume-matcher

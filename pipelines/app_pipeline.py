@@ -55,7 +55,7 @@ def main(args):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Match a resume to top job descriptions")
+    parser = argparse.ArgumentParser(description="Match a resume to top relevant job titles")
     parser.add_argument('--resume_path', type=str, required=True, help="Path to resume file")
     parser.add_argument('--vectorizer_path', type=str, default='models/app_tfidf/job_tfidf_vectorizer.pkl')
     parser.add_argument('--job_matrix_path', type=str, default='models/app_tfidf/job_tfidf_matrix.npz')
