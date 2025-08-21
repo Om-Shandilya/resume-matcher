@@ -211,8 +211,8 @@ Resume.csv
 job_descriptions.csv
 understanding_data.ipynb
 data/processed/*.csv
+data/processed/*.txt
 data/raw/*/*csv
 data/saved_plots/
-test_vectorization.py
 models/
 tests/

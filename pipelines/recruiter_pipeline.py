@@ -65,7 +65,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Recruiter Pipeline: Rank resumes for a given job description")
     parser.add_argument('--job_desc_path', type=str, required=True, help="Path to job description file")
     parser.add_argument('--resume_dir', type=str, required=True, help="Directory containing applicant resumes")
-    parser.add_argument('--vectorizer_path', type=str, default='models/recruiter_tfidf/combined_tfidf_vectorizer.pkl')
+    parser.add_argument('--vectorizer_path', type=str, default='models/tfidf/recruiter_tfidf/combined_tfidf_vectorizer.pkl')
     parser.add_argument('--top_k', type=int, default=10, help="Number of top resumes to return")
     parser.add_argument('--debug', action='store_true', help="Print cleaned job/resume text and raw matches")
 
