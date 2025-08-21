@@ -1,6 +1,6 @@
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
-from src.feature_engg.vectorizing_data import load_vector_data
+from src.feature_engg.tfidf_vectorizing_data import load_vector_data
 
 def compute_similarity_matrix(X_resumes, X_jobs ):
     """
@@ -9,7 +9,7 @@ def compute_similarity_matrix(X_resumes, X_jobs ):
     """
     return cosine_similarity(X_resumes, X_jobs)
 
-def top_n_matches(similarity_matrix: np.ndarray, 
+def top_n_tfidf_matches(similarity_matrix: np.ndarray, 
                   top_n: int = 5,
                   job_df = None):
     """
@@ -36,6 +36,34 @@ def top_n_matches(similarity_matrix: np.ndarray,
         results[i] = ranked
     return results
 
+def top_n_bert_matches(indices, distances, job_df, top_n=5):
+    """
+    Deduplicate FAISS results by job title and return top-N unique matches.
+    Searches across all jobs if provided.
+
+    Args:
+        indices (np.ndarray): Indices of nearest neighbors from FAISS (shape: [1, k]).
+        distances (np.ndarray): Distances/similarities from FAISS (shape: [1, k]).
+        job_df (pd.DataFrame): DataFrame containing job titles.
+        top_n (int): Number of unique top matches to return.
+
+    Returns:
+        List[Tuple[int, float]]: List of (job_idx, score) for top-N unique titles.
+    """
+    seen_titles = set()
+    ranked = []
+
+    for idx, score in zip(indices[0], distances[0]):
+        title = job_df.iloc[idx]['title']
+        if title not in seen_titles:
+            ranked.append((idx, float(score)))
+            seen_titles.add(title)
+        if len(ranked) == top_n:
+            break
+
+    return ranked
+
+
 if __name__ == "__main__":
     # Define paths
     resume_vec_path = "models/dev_tfidf/resumes_tfidf_matrix.npz"
@@ -56,7 +84,7 @@ if __name__ == "__main__":
     # print(f"Min score: {np.min(all_scores):0.4f}, \nMax score: {np.max(all_scores):0.4f}, \nMean score: {np.mean(all_scores):0.4f}, \nMedian score: {np.median(all_scores):0.4f}")
 
     # Get top 5 matches per resume
-    matches = top_n_matches(similarity_matrix, top_n=5)
+    matches = top_n_tfidf_matches(similarity_matrix, top_n=5)
 
     # Display example output (i.e. top_n job matches for first 5 resumes)
     for resume_idx, top_jobs in list(matches.items())[:5]:

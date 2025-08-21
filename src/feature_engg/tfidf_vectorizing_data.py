@@ -29,16 +29,16 @@ def get_combined_tfidf_vectorizer(max_features: int = 40000,
     return TfidfVectorizer(
            stop_words="english",
            lowercase=True,
-           max_features=max_features,      # Balanced for resumes + jobs
+           max_features=max_features,       # Balanced for resumes + jobs
            ngram_range=ngram_range,
            min_df=5,
            max_df=0.85,
-           sublinear_tf=True,       # Smooth term frequency scaling
+           sublinear_tf=True,               # Smooth term frequency scaling
            norm="l2"         
 )
 
 def save_vectorizer(vectorizer: TfidfVectorizer, 
-                    path: str = 'models/dev_tfidf/tfidf_vectorizer.pkl'):
+                    path: str = 'models/tfidf/dev_tfidf/tfidf_vectorizer.pkl'):
     
     """
     Saves a TfidfVectorizer object to a given path. Appends .pkl if missing.
@@ -64,9 +64,9 @@ def save_vector_data(matrix: csr_matrix, path: str):
     print(f"✅ TF-IDF matrix saved to: [{path}]")
 
 
-def vectorize_text(df: pd.DataFrame, 
+def tfidf_vectorize_text(df: pd.DataFrame, 
                    text_column: str, 
-                   label: str,  # e.g., 'resumes' or 'jobs'
+                   label: str,
                    vectorizer: Optional[TfidfVectorizer] = None,
                    fit_vectorizer: bool = False, 
                    save_path: Optional[str] = None,
