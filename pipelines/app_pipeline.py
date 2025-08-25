@@ -43,12 +43,12 @@ def run_tfidf_pipeline(args, raw_resume: str):
 
     # Optional debug
     if args.debug:
-        print("\n======= DEBUG MODE =======")
-        print("\n📄 Cleaned Resume Preview:\n", cleaned_resume[:1000])
-        print("\n--- Raw TF-IDF Similarity Scores (Top-K) ---")
+        print("\n================ DEBUG MODE ================")
+        print("\n📄--- [DEBUG - TFIDF] Cleaned Resume Preview:\n", cleaned_resume[:1000], "---")
+        print(f"\n--- [DEBUG - TFIDF] Raw Similarity Scores (top {args.top_k}) ---")
         for job_idx, score in matches[0]:
             print(f"[{job_idx}] {job_df.iloc[job_idx]['title']} → {score:0.6f}")
-        print("============================")
+        print("==============================================")
 
 
 def run_bert_pipeline(args, raw_resume: str):
@@ -77,11 +77,11 @@ def run_bert_pipeline(args, raw_resume: str):
 
     # Optional debug
     if args.debug:
-        print("\n======= DEBUG MODE =======")
-        print("\n--- Raw BERT/FAISS Similarity Scores (Top-K) ---")
+        print("\n================ DEBUG MODE ================")
+        print(f"\n--- [DEBUG - BERT/FAISS] Raw Similarity Scores (top {args.top_k}) ---")
         for idx, score in matches:
             print(f"🔹 {job_df.iloc[idx]['title']} (score: {score})")
-        print("============================")
+        print("==============================================")
 
 
 def main(args):
