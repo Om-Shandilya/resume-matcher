@@ -37,9 +37,9 @@ if __name__ == "__main__":
 
 
 # Step 4: Vectorize using shared TF-IDF vectorizer
-from src.feature_engg.vectorizing_data import (
-    get_tfidf_vectorizer, vectorize_text, save_vectorizer, save_vector_data
-)
+from src.feature_engg.tfidf_vectorizing_data import (get_tfidf_vectorizer,
+                                                     tfidf_vectorize_text,
+                                                     save_vectorizer)
 
 print("\n💻 Vectorizing text using shared TF-IDF vectorizer...")
 
@@ -54,13 +54,13 @@ vector_save_dir = "models/dev_tfidf"
 os.makedirs(vector_save_dir, exist_ok=True)
 
 # Transform resumes and jobs separately using the same vectorizer
-X_resumes, _ = vectorize_text(
+X_resumes, _ = tfidf_vectorize_text(
     df_resumes, text_column="text_cleaned", label="resumes",
     vectorizer=shared_vectorizer, fit_vectorizer=False,
     save_path=vector_save_dir, save_vectorizer_file=False  # We’ll save manually below
 )
 
-X_jobs, _ = vectorize_text(
+X_jobs, _ = tfidf_vectorize_text(
     df_jobs, text_column="text_cleaned", label="jobs",
     vectorizer=shared_vectorizer, fit_vectorizer=False,
     save_path=vector_save_dir, save_vectorizer_file=False

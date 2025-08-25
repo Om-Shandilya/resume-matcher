@@ -27,14 +27,14 @@ def get_combined_tfidf_vectorizer(max_features: int = 40000,
     Creates a TF-IDF vectorizer with specified parameters for larger vocab with both Jobs and Resume.
     """
     return TfidfVectorizer(
-           stop_words="english",
-           lowercase=True,
+           stop_words="english",            # Remove common English stopwords
+           lowercase=True,                  # Convert all to lowercase
            max_features=max_features,       # Balanced for resumes + jobs
-           ngram_range=ngram_range,
-           min_df=5,
-           max_df=0.85,
+           ngram_range=ngram_range,         # By default Unigrams + Bigrams
+           min_df=5,                        # Ignore very rare words   
+           max_df=0.85,                     # Ignore very common words
            sublinear_tf=True,               # Smooth term frequency scaling
-           norm="l2"         
+           norm="l2"                        # Normalize for cosine similarity
 )
 
 def save_vectorizer(vectorizer: TfidfVectorizer, 
