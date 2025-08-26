@@ -158,3 +158,23 @@ def clean_column(
     )
     print(f"✅ Cleaned column '{column_name}' and saved cleaned data to '{new_column_name}' column.")
     return df
+
+def clean_text_for_bert(text: str) -> str:
+    """
+    Minimal cleaning for BERT input.
+    Keeps stopwords, punctuation, and numbers because they carry meaning.
+    Only removes obvious noise.
+    """
+    if pd.isnull(text):
+        return ""
+
+    # Normalize unicode to standard form
+    text = unicodedata.normalize("NFKC", text)
+
+    # Remove HTML tags
+    text = re.sub(r"<.*?>", " ", text)
+
+    # Replace multiple spaces/newlines with a single space
+    text = re.sub(r"\s+", " ", text).strip()
+
+    return text
