@@ -4,6 +4,7 @@ import joblib
 import os
 from scipy.sparse import csr_matrix, save_npz, load_npz
 from typing import Optional, Tuple
+from huggingface_hub import hf_hub_download
 
 
 def get_tfidf_vectorizer(max_features: int = 5000, 
@@ -108,19 +109,23 @@ def tfidf_vectorize_text(df: pd.DataFrame,
     return X, vectorizer
 
 
-def load_vectorizer(path: str):
-    """
-    Loads a vectorizer from a .pkl file.
-    """
-    if not path.endswith('.pkl'):
-        path += '.pkl'
-    return joblib.load(path)
+def load_tfidf_vectorizer(local_vectorizer_path: str, repo_id: str, filename: str):
+    """Load TF-IDF vectorizer, preferring local then HF Hub."""
+    if local_vectorizer_path and os.path.exists(local_vectorizer_path):
+        print(f"📂 Loading local TF-IDF vectorizer from {local_vectorizer_path}")
+        return joblib.load(local_vectorizer_path)
+    else:
+        print(f"🌐 Downloading TF-IDF vectorizer from Hugging Face Hub ({repo_id})")
+        vec_path = hf_hub_download(repo_id=repo_id, filename=filename)
+        return joblib.load(vec_path)
 
 
-def load_vector_data(path: str):
-    """
-    Loads a sparse matrix from a .npz file.
-    """
-    if not path.endswith('.npz'):
-        path += '.npz'
-    return load_npz(path)
+def load_tfidf_matrix(local_matrix_path: str, repo_id: str, filename: str):
+    """Load TF-IDF matrix, preferring local then HF Hub."""
+    if local_matrix_path and os.path.exists(local_matrix_path):
+        print(f"📂 Loading local TF-IDF matrix from {local_matrix_path}")
+        return load_npz(local_matrix_path)
+    else:
+        print(f"🌐 Downloading TF-IDF matrix from Hugging Face Hub ({repo_id})")
+        mat_path = hf_hub_download(repo_id=repo_id, filename=filename)
+        return load_npz(mat_path)

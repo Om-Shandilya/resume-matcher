@@ -1,139 +1,167 @@
 import argparse
 import os
-import joblib
+import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
-import faiss
-from sentence_transformers import SentenceTransformer
+from src.feature_engg.tfidf_vectorizing_data import load_tfidf_vectorizer
+from src.feature_engg.bert_embedding_data import get_bert_model
 from src.utils.bulk_loading import bulk_load_raw_resume_files
 from src.utils.file_reader import extract_text_from_file
-from src.processing.text_cleaning import clean_text
+from src.processing.text_cleaning import clean_text, clean_text_for_bert
 
 
-def rank_with_tfidf(args, raw_job_text, raw_resume_texts):
-    """TF-IDF recruiter pipeline"""
-    # Step 1: Load vectorizer
-    if not os.path.exists(args.vectorizer_path):
-        raise FileNotFoundError(f"⚠️ Vectorizer file not found: {args.vectorizer_path}")
-    vectorizer = joblib.load(args.vectorizer_path)
+# ------------------------- TF-IDF PIPELINE -------------------------
+def run_tfidf_pipeline(args, raw_job_text, raw_resume_texts):
+    # Step 1: Load vectorizer (local or HF Hub)
+    vectorizer = load_tfidf_vectorizer(
+        local_vectorizer_path=args.local_vectorizer_path,
+        repo_id=args.tfidf_repo_id,
+        filename=args.vectorizer_filename
+    )
 
-    # Step 2: Process job description
+    # Step 2: Clean job description
     cleaned_job_text = clean_text(raw_job_text)
     job_vector = vectorizer.transform([cleaned_job_text])
 
-    # Step 3: Process resumes
+    # Step 3: Clean and vectorize resumes
     cleaned_resumes = {fname: clean_text(txt) for fname, txt in raw_resume_texts.items()}
     resume_matrix = vectorizer.transform(cleaned_resumes.values())
 
     # Step 4: Compute similarity
     sims = cosine_similarity(job_vector, resume_matrix)[0]
 
+    # Step 5: Rank resumes
+    ranked = sorted(zip(cleaned_resumes.keys(), sims), key=lambda x: x[1], reverse=True)
+
+    # Step 6: Top-K handling
+    top_k = args.top_k
+    available_resumes = len(ranked)
+
+    if args.top_k is None:
+        top_k = available_resumes
+        print(f"\nℹ️ Showing all {available_resumes} resumes.\n")
+    elif args.top_k > available_resumes:
+        top_k = available_resumes
+        print(f"\n⚠️ Requested top_k={args.top_k} exceeds available resumes={available_resumes}. Reducing top_k.\n")
+
+    print(f"\n🎯 Top {top_k} Candidate Matches for the Job (TF-IDF):")
+    for i, (fname, score) in enumerate(ranked[:top_k], 1):
+        print(f"{i}. {fname} → score: {score:.4f}")
+
     if args.debug:
         print("\n================ DEBUG MODE ================")
-        print("\n[DEBUG - TFIDF] Cleaned job description:")
-        print(cleaned_job_text[:500], "...\n")
-        print("[DEBUG - TFIDF] First 3 cleaned resumes:")
+        print("\n📄--- [DEBUG - TFIDF] Cleaned Job Description Preview:\n", cleaned_job_text[:1000], "---")
+        print("\n--- [DEBUG - TFIDF] First 3 Cleaned Resumes ---")
         for i, (fname, txt) in enumerate(cleaned_resumes.items()):
             if i >= 3: break
             print(f"{fname}: {txt[:300]}...\n")
-        print("[DEBUG - TFIDF] Raw similarity scores:", sims[:10])
+        print(f"\n--- [DEBUG - TFIDF] Raw Similarity Scores (top {top_k}) ---")
+        for fname, score in ranked[:top_k]:
+            print(f"{fname} → {score:0.6f}")
         print("==============================================")
+
+
+# ------------------------- BERT PIPELINE -------------------------
+def run_bert_pipeline(args, raw_job_text, raw_resume_texts):
+    # Step 1: Load fine-tuned ST model (local or HF Hub)
+    model = get_bert_model(args.local_bert_path or args.bert_repo_id)
+
+    # Step 2: Clean job description
+    cleaned_job_text = clean_text_for_bert(raw_job_text)
+    job_embedding = model.encode([cleaned_job_text], normalize_embeddings=True)
+
+    # Step 3: Encode resumes
+    cleaned_resumes = {fname: clean_text_for_bert(txt) for fname, txt in raw_resume_texts.items()}
+    resume_embeddings = model.encode(list(cleaned_resumes.values()), normalize_embeddings=True)
+
+    # Step 4: Compute cosine similarity manually
+    # Using dot product as embeddings are normalized and not FAISS since we have small data here.
+    sims = np.dot(resume_embeddings, job_embedding.T).flatten()
 
     # Step 5: Rank resumes
     ranked = sorted(zip(cleaned_resumes.keys(), sims), key=lambda x: x[1], reverse=True)
-    return ranked
 
+    # Step 6: Top-K handling
+    top_k = args.top_k
+    available_resumes = len(ranked)
 
-def rank_with_bert(args, raw_job_text, raw_resume_texts):
-    """BERT recruiter pipeline using FAISS (on the fly)"""
-    if not os.path.exists(args.bert_model_path):
-        raise FileNotFoundError(f"⚠️ BERT model not found: {args.bert_model_path}")
+    if args.top_k is None:
+        top_k = available_resumes
+        print(f"\nℹ️ Showing all {available_resumes} resumes.\n")
+    elif args.top_k > available_resumes:
+        top_k = available_resumes
+        print(f"\n⚠️ Requested top_k={args.top_k} exceeds available resumes={available_resumes}. Reducing top_k.\n")
 
-    # Step 1: Load BERT model
-    model = SentenceTransformer(args.bert_model_path)
-
-    # Step 2: Encode job description
-    job_embedding = model.encode([raw_job_text], convert_to_numpy=True, normalize_embeddings=True)
-
-    # Step 3: Encode resumes
-    resume_embeddings = model.encode(list(raw_resume_texts.values()), convert_to_numpy=True, normalize_embeddings=True)
-
-    # Step 4: Create FAISS indices
-    local_index = faiss.IndexFlatIP(resume_embeddings.shape[1])
-    local_index.add(resume_embeddings)
-
-    scores, indices = local_index.search(job_embedding, len(raw_resume_texts))
+    print(f"\n🎯 Top {top_k} Candidate Matches for the Job (BERT):")
+    for i, (fname, score) in enumerate(ranked[:top_k], 1):
+        print(f"{i}. {fname} → score: {score:.4f}")
 
     if args.debug:
         print("\n================ DEBUG MODE ================")
-        print("\n[DEBUG - BERT/FAISS] Raw job description:")
-        print(raw_job_text[:500], "...\n")
-        print("[DEBUG - BERT/FAISS] First 3 raw resumes:")
-        for i, (fname, txt) in enumerate(raw_resume_texts.items()):
+        print("\n📄--- [DEBUG - BERT] Cleaned Job Description Preview:\n", cleaned_job_text[:1000], "---")
+        print("\n--- [DEBUG - BERT] First 3 Cleaned Resumes ---")
+        for i, (fname, txt) in enumerate(cleaned_resumes.items()):
             if i >= 3: break
             print(f"{fname}: {txt[:300]}...\n")
-        print(f"[DEBUG - BERT/FAISS] all similarity scores:", scores[0][:len(raw_resume_texts)])
+        print(f"\n--- [DEBUG - BERT] Raw Similarity Scores (top {top_k}) ---")
+        for fname, score in ranked[:top_k]:
+            print(f"{fname} → {score:0.6f}")
         print("==============================================")
 
-    # Step 5: Rank resumes
-    ranked = [(list(raw_resume_texts.keys())[i], float(scores[0][j]))
-              for j, i in enumerate(indices[0])]
-    return ranked
 
-
+# ------------------------- MAIN -------------------------
 def main(args):
     try:
-        # Load raw job and resumes 
+        # Load job description and resumes
+        if not os.path.exists(args.job_desc_path):
+            raise FileNotFoundError(f"⚠️ Job description not found: {args.job_desc_path}")
         raw_job_text = extract_text_from_file(args.job_desc_path)
+
+        if not os.path.exists(args.resume_dir):
+            raise FileNotFoundError(f"⚠️ Resume directory not found: {args.resume_dir}")
         raw_resume_texts = bulk_load_raw_resume_files(args.resume_dir)
 
         if not raw_resume_texts:
             raise ValueError("⚠️ No valid resumes found in the given directory.")
 
-        # Limit the number of resumes displayed based on the top_k argument and available resumes
-        available_resumes = len(raw_resume_texts)
-        top_k = min(args.top_k, available_resumes)
+        print(f"\n📄 Job Description: {args.job_desc_path}")
+        print(f"📂 Loaded {len(raw_resume_texts)} resumes from {args.resume_dir}")
 
-        if args.top_k > available_resumes:
-            print(f"\n⚠️ Only {available_resumes} resumes are available. "
-                  f"Showing top {available_resumes} matches instead of {args.top_k}.\n")
-
-        # Choose model
-        if args.model == "tfidf":
-            ranked = rank_with_tfidf(args, raw_job_text, raw_resume_texts)
-        elif args.model == "bert":
-            ranked = rank_with_bert(args, raw_job_text, raw_resume_texts)
+        # Pipeline selector
+        print(f"⚙️ Using model: {args.model.upper()}")
+        if args.model == "bert":
+            run_bert_pipeline(args, raw_job_text, raw_resume_texts)
         else:
-            raise ValueError("❌ Invalid model. Choose 'tfidf' or 'bert'.")
+            run_tfidf_pipeline(args, raw_job_text, raw_resume_texts)
 
-        # Display ranked resumes
-        print(f"\n🎯 Top {top_k} Candidate Matches for the Job ({args.model.upper()}):")
-        for i, (fname, score) in enumerate(ranked[:top_k], 1):
-            print(f"{i}. {fname}  → score: {score:.4f}")
-            
     except Exception as e:
         print(f"❌ Error: {str(e)}")
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Recruiter Pipeline: Rank user uploaded resumes for a given job description")
+    parser = argparse.ArgumentParser(description="Recruiter Pipeline: Rank resumes for a given job description")
 
-    # Shared arguments
-    parser.add_argument('--job_desc_path', type=str, required=True, help="Path to job description file")
-    parser.add_argument('--resume_dir', type=str, required=True, help="Directory containing applicant resumes")
-    parser.add_argument('--model', type=str, choices=['tfidf', 'bert'], default='tfidf',
-                        help="Model to use: tfidf or bert")
-    parser.add_argument('--top_k', type=int, default=10, help="Number of top resumes to return")
-    parser.add_argument('--debug', action='store_true', help="Print cleaned/raw texts and raw similarity scores")
+    # Shared args
+    parser.add_argument("--job_desc_path", type=str, required=True, help="Path to job description file")
+    parser.add_argument("--resume_dir", type=str, required=True, help="Directory containing applicant resumes")
+    parser.add_argument("--model", type=str, choices=["tfidf", "bert"], default="tfidf")
+    parser.add_argument("--top_k", type=int, default=None,
+                        help="Number of top matches to return if not specified, returns all")
+    parser.add_argument("--debug", action="store_true",
+                        help="print raw similarity scores and cleaned texts for debugging")
 
-    # TF-IDF specific
-    parser.add_argument('--vectorizer_path', type=str,
-                        default='models/tfidf/recruiter_tfidf/combined_tfidf_vectorizer.pkl',
-                        help="Path to pre-trained TF-IDF vectorizer")
+    # TF-IDF args
+    parser.add_argument("--local_vectorizer_path", type=str, default=None,
+                        help="Local TF-IDF vectorizer .pkl file")
+    parser.add_argument("--tfidf_repo_id", type=str, default="Om-Shandilya/resume-matcher-tfidf",
+                        help="Hub repo id for HuggingFace TF-IDF model")
+    parser.add_argument("--vectorizer_filename", type=str, default="recruiter/combined_vectorizer.pkl",
+                        help="Filename of vectorizer in the HF repo")
 
-    # BERT specific
-    parser.add_argument('--bert_model_path', type=str,
-                        default='models/bert/dapt_minilm_sentence_transformer',
-                        help="Path to fine-tuned BERT/SBERT model")
+    # BERT args
+    parser.add_argument("--local_bert_path", type=str, default=None,
+                        help="Local fine-tuned ST model path")
+    parser.add_argument("--bert_repo_id", type=str, default="Om-Shandilya/resume-matcher-bert",
+                        help="fine-tuned ST model's HF repo id")
 
     args = parser.parse_args()
     main(args)

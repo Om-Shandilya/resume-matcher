@@ -1,6 +1,6 @@
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
-from src.feature_engg.tfidf_vectorizing_data import load_vector_data
+from src.feature_engg.tfidf_vectorizing_data import load_tfidf_matrix
 
 def compute_similarity_matrix(X_resumes, X_jobs ):
     """
@@ -70,8 +70,8 @@ if __name__ == "__main__":
     job_vec_path = "models/dev_tfidf/jobs_tfidf_matrix.npz"
 
     # Load sparse TF-IDF matrices
-    X_resumes = load_vector_data(resume_vec_path)
-    X_jobs = load_vector_data(job_vec_path)
+    X_resumes = load_tfidf_matrix(resume_vec_path)
+    X_jobs = load_tfidf_matrix(job_vec_path)
 
     print(f"✅ Loaded resumes vector shape: {X_resumes.shape}")
     print(f"✅ Loaded job descriptions vector shape: {X_jobs.shape}")

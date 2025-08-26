@@ -2,9 +2,13 @@ import os
 import numpy as np
 import pandas as pd
 import torch
+import faiss
+import torch
+from faiss import read_index
 from typing import Optional
 from sentence_transformers import SentenceTransformer, models
-import faiss
+from transformers import AutoTokenizer, AutoModel
+from huggingface_hub import hf_hub_download
 
 
 def get_bert_model(model_name: str = "all-MiniLM-L6-v2",
@@ -53,7 +57,7 @@ def save_bert_model(vectorizer: SentenceTransformer,
 
 def bert_embed_text(df: pd.DataFrame,
                    text_column: str,
-                   label: str,
+                   label: str = 'jobs',  # default is 'jobs' as most common use-case in pipeline.
                    model: Optional[SentenceTransformer] = None,
                    save_path: Optional[str] = None,
                    save_model_file: bool = False):
@@ -89,26 +93,41 @@ def bert_embed_text(df: pd.DataFrame,
     )
 
     if save_path and label:
-        save_bert_embeddings(embeddings, os.path.join(save_path, f"{label}_bert_embeddings.faiss"))
+        save_bert_embeddings(embeddings, os.path.join(save_path, f"{label}.faiss"))
         if save_model_file:
-            save_bert_model(model, os.path.join(save_path, f"{label}_bert_model"))
+            save_bert_model(model, save_path)
 
     return embeddings, model
 
 
-def load_bert_embeddings(path: str):
-    """
-    Load a FAISS index file (.faiss) from disk.
-    """
-    if not path.endswith('.faiss'):
-        path += '.faiss'
-    return faiss.read_index(path)
+def load_faiss_index(local_index_path: str, repo_id: str, filename: str):
+    """Load FAISS index, preferring local then HF Hub."""
+    if local_index_path and os.path.exists(local_index_path):
+        print(f"📂 Loading local FAISS index from {local_index_path}")
+        return read_index(local_index_path)
+    else:
+        print(f"🌐 Downloading FAISS index from Hugging Face Hub ({repo_id})")
+        faiss_path = hf_hub_download(repo_id=repo_id, filename=filename)
+        return read_index(faiss_path)
 
+def load_bert_model(local_model_path: str, repo_id: str):
+    """Load BERT model, preferring local then HF Hub."""
+    if local_model_path and os.path.exists(local_model_path):
+        print(f"📂 Loading local BERT model from {local_model_path}")
+        tokenizer = AutoTokenizer.from_pretrained(local_model_path)
+        model = AutoModel.from_pretrained(local_model_path)
+    else:
+        print(f"🌐 Downloading BERT model from Hugging Face Hub ({repo_id})")
+        tokenizer = AutoTokenizer.from_pretrained(repo_id)
+        model = AutoModel.from_pretrained(repo_id)
+    return tokenizer, model
 
-def load_bert_model(path: str):
-    """Load a saved SentenceTransformer model."""
-
-    return SentenceTransformer(path)
+def mean_pooling(model_output, attention_mask):
+    """Mean pooling for sentence embeddings."""
+    token_embeddings = model_output[0]  # First element is [batch, seq_len, hidden_dim]
+    input_mask_expanded = attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
+    return torch.sum(token_embeddings * input_mask_expanded, 1) / torch.clamp(
+        input_mask_expanded.sum(1), min=1e-9)
 
 
 def convert_hf_model_to_st(hf_model_path: str,
