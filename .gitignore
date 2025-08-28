@@ -215,4 +215,5 @@ data/processed/*.txt
 data/raw/*/*csv
 data/saved_plots/
 models/
+__pycache__/
 tests/

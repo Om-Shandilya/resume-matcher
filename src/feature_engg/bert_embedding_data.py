@@ -11,19 +11,20 @@ from transformers import AutoTokenizer, AutoModel
 from huggingface_hub import hf_hub_download
 
 
-def get_bert_model(model_name: str = "all-MiniLM-L6-v2",
+def get_bert_model(model_name: str,
                    device: str = None):
     """
     Loads a BERT-based sentence transformer model for embeddings.
 
     Args:
-        model_name (str): HuggingFace model name. Default is "all-MiniLM-L6-v2".
+        model_name (str): Hugging Face model name or path.
         device (str, optional): "cuda", "cpu", or None (auto-detect).
 
     Returns:
         SentenceTransformer: Loaded model ready for encoding.
     """
     device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"📂 Loading BERT model '{model_name}' on device: {device}")
     return SentenceTransformer(model_name, device=device)
 
 
@@ -102,25 +103,44 @@ def bert_embed_text(df: pd.DataFrame,
 
 def load_faiss_index(local_index_path: str, repo_id: str, filename: str):
     """Load FAISS index, preferring local then HF Hub."""
-    if local_index_path and os.path.exists(local_index_path):
+    if local_index_path:
+        if not os.path.exists(local_index_path):
+            raise FileNotFoundError(f"❌ Local FAISS index not found at {local_index_path}")
         print(f"📂 Loading local FAISS index from {local_index_path}")
-        return read_index(local_index_path)
-    else:
-        print(f"🌐 Downloading FAISS index from Hugging Face Hub ({repo_id})")
-        faiss_path = hf_hub_download(repo_id=repo_id, filename=filename)
-        return read_index(faiss_path)
+        return faiss.read_index(local_index_path)
 
-def load_bert_model(local_model_path: str, repo_id: str):
-    """Load BERT model, preferring local then HF Hub."""
-    if local_model_path and os.path.exists(local_model_path):
-        print(f"📂 Loading local BERT model from {local_model_path}")
-        tokenizer = AutoTokenizer.from_pretrained(local_model_path)
-        model = AutoModel.from_pretrained(local_model_path)
-    else:
-        print(f"🌐 Downloading BERT model from Hugging Face Hub ({repo_id})")
-        tokenizer = AutoTokenizer.from_pretrained(repo_id)
-        model = AutoModel.from_pretrained(repo_id)
-    return tokenizer, model
+    print(f"🌐 Downloading FAISS index from Hugging Face Hub ({repo_id}/{filename})")
+    faiss_path = hf_hub_download(repo_id=repo_id, filename=filename)
+    return faiss.read_index(faiss_path)
+
+def load_bert_model(local_bert_path: str, repo_id: str='Om-Shandilya/resume-matcher-bert'):
+    """
+    Load a SentenceTransformer BERT model:
+    - If local_model_path is provided, it must be a valid path.
+    - If local_model_path is None, download from Hugging Face Hub.
+    """
+    if local_bert_path is None:
+        try:
+            print(f"🌐 Downloading BERT model from Hugging Face Hub ({repo_id})")
+            model = SentenceTransformer(repo_id)
+            return model
+        except Exception as e:
+            raise RuntimeError(f"❌ Failed to download model from Hugging Face Hub ({repo_id}). Error: {e}")
+
+
+    if not os.path.exists(local_bert_path):
+        raise FileNotFoundError(
+            f"❌ The specified local path does not exist: '{local_bert_path}'. "
+            "Please provide a correct path or set it to None to download from the Hub."
+        )
+
+    try:
+        print(f"📂 Loading local BERT model from {local_bert_path}")
+        model = SentenceTransformer(local_bert_path)
+        return model
+    except Exception as e:
+        raise RuntimeError(f"❌ Failed to load local model from '{local_bert_path}'. Error: {e}")
+
 
 def mean_pooling(model_output, attention_mask):
     """Mean pooling for sentence embeddings."""
