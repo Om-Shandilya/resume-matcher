@@ -53,10 +53,13 @@ def extract_text_from_file(file_path):
     
     ext = os.path.splitext(file_path)[1].lower()
     if ext == '.pdf':
+        print(f"Extracting text from PDF {file_path}")
         return extract_text_from_pdf(file_path)
     elif ext == '.docx':
+        print(f"Extracting text from DOCX {file_path}")
         return extract_text_from_docx(file_path)
     elif ext == '.txt':
+        print(f"Extracting text from TXT {file_path}")
         return extract_text_from_txt(file_path)
     else:
         raise ValueError(f"Unsupported file type: {ext}")

@@ -111,21 +111,24 @@ def tfidf_vectorize_text(df: pd.DataFrame,
 
 def load_tfidf_vectorizer(local_vectorizer_path: str, repo_id: str, filename: str):
     """Load TF-IDF vectorizer, preferring local then HF Hub."""
-    if local_vectorizer_path and os.path.exists(local_vectorizer_path):
+    if local_vectorizer_path:
+        if not os.path.exists(local_vectorizer_path):
+            raise FileNotFoundError(f"❌ Local TF-IDF vectorizer not found at {local_vectorizer_path}")
         print(f"📂 Loading local TF-IDF vectorizer from {local_vectorizer_path}")
         return joblib.load(local_vectorizer_path)
-    else:
-        print(f"🌐 Downloading TF-IDF vectorizer from Hugging Face Hub ({repo_id})")
-        vec_path = hf_hub_download(repo_id=repo_id, filename=filename)
-        return joblib.load(vec_path)
 
+    print(f"🌐 Downloading TF-IDF vectorizer from Hugging Face Hub ({repo_id}/{filename})")
+    vec_path = hf_hub_download(repo_id=repo_id, filename=filename)
+    return joblib.load(vec_path)
 
 def load_tfidf_matrix(local_matrix_path: str, repo_id: str, filename: str):
     """Load TF-IDF matrix, preferring local then HF Hub."""
-    if local_matrix_path and os.path.exists(local_matrix_path):
+    if local_matrix_path:
+        if not os.path.exists(local_matrix_path):
+            raise FileNotFoundError(f"❌ Local TF-IDF matrix not found at {local_matrix_path}")
         print(f"📂 Loading local TF-IDF matrix from {local_matrix_path}")
         return load_npz(local_matrix_path)
-    else:
-        print(f"🌐 Downloading TF-IDF matrix from Hugging Face Hub ({repo_id})")
-        mat_path = hf_hub_download(repo_id=repo_id, filename=filename)
-        return load_npz(mat_path)
+
+    print(f"🌐 Downloading TF-IDF matrix from Hugging Face Hub ({repo_id}/{filename})")
+    mat_path = hf_hub_download(repo_id=repo_id, filename=filename)
+    return load_npz(mat_path)
