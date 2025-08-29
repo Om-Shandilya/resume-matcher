@@ -7,11 +7,10 @@ import torch
 from faiss import read_index
 from typing import Optional
 from sentence_transformers import SentenceTransformer, models
-from transformers import AutoTokenizer, AutoModel
 from huggingface_hub import hf_hub_download
 
 
-def get_bert_model(model_name: str,
+def create_bert_model(model_name: str,
                    device: str = None):
     """
     Loads a BERT-based sentence transformer model for embeddings.
@@ -84,7 +83,7 @@ def bert_embed_text(df: pd.DataFrame,
         df[text_column] = df[text_column].fillna("")
 
     if model is None:
-        model = get_bert_model()
+        model = create_bert_model()
 
     embeddings = model.encode(
         df[text_column].tolist(),

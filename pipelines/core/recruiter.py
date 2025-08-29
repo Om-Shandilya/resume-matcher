@@ -6,17 +6,32 @@ from src.processing.text_cleaning import clean_text, clean_text_for_bert
 
 
 def rank_with_tfidf(raw_job_text, raw_resume_texts, *,
+                    vectorizer=None,
                     local_vectorizer_path=None,
                     repo_id="Om-Shandilya/resume-matcher-tfidf",
                     filename="recruiter/combined_vectorizer.pkl",
                     top_k=None,
                     debug=False):
-    """Rank resumes using TF-IDF similarity."""
-    vectorizer = load_tfidf_vectorizer(
-        local_vectorizer_path=local_vectorizer_path,
-        repo_id=repo_id,
-        filename=filename
-    )
+    """Rank resumes using TF-IDF similarity.
+    
+    Args:
+        raw_job_text (str): Raw text of the job description.
+        raw_resume_texts (dict): Dictionary of resume filenames and their raw texts.
+        vectorizer (TfidfVectorizer, optional): Preloaded TF-IDF vectorizer.
+        local_vectorizer_path (str, optional): Local path to TF-IDF vectorizer.
+        repo_id (str): Hugging Face repo ID for vectorizer.
+        filename (str): Filename of the vectorizer in the repo.
+        top_k (int, optional): Number of top matches to return. If None, return all.
+        debug (bool, optional): Print raw similarity scores for both and cleaned resume.
+    
+    Returns:
+        List[Tuple[str, float]]: List of (resume_filename, score) for top_k matches. and message.
+    """
+
+    if vectorizer is None:
+        vectorizer = load_tfidf_vectorizer(local_vectorizer_path=local_vectorizer_path,
+                                       repo_id=repo_id,
+                                       filename=filename)
 
     cleaned_job_text = clean_text(raw_job_text)
     job_vector = vectorizer.transform([cleaned_job_text])
@@ -56,12 +71,28 @@ def rank_with_tfidf(raw_job_text, raw_resume_texts, *,
 
 
 def rank_with_bert(raw_job_text, raw_resume_texts, *,
+                   model=None,
                    local_bert_path=None,
                    repo_id="Om-Shandilya/resume-matcher-bert",
                    top_k=None,
                    debug=False):
-    """Rank resumes using BERT embeddings."""
-    model = load_bert_model(local_bert_path=local_bert_path, repo_id=repo_id)
+    """Rank resumes using BERT embeddings.
+    
+    Args:
+        raw_job_text (str): Raw text of the job description.
+        raw_resume_texts (dict): Dictionary of resume filenames and their raw text.
+        model (SentenceTransformer, optional): Preloaded BERT model.
+        local_bert_path (str, optional): Local path to BERT model.
+        repo_id (str): Hugging Face repo ID for model.
+        top_k (int, optional): Maximum number of matches to show. If None, show all.
+        debug (bool, optional): Print raw similarity scores.
+
+    Returns:
+        List[Tuple[str, float]]: List of (resume_filename, score) for top_k matches. and message.
+    """
+
+    if model is None:
+        model = load_bert_model(local_bert_path=local_bert_path, repo_id=repo_id)
 
     cleaned_job_text = clean_text_for_bert(raw_job_text)
     job_embedding = model.encode([cleaned_job_text], normalize_embeddings=True)

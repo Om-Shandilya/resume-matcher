@@ -8,6 +8,7 @@ import altair as alt
 sys.path.append(os.path.abspath(os.path.join(os.getcwd(), '..')))
 from src.utils.bulk_loading import bulk_load_raw_resume_files
 from src.utils.file_reader import extract_text_from_file
+from src.utils.model_loader import get_applicant_matrix, get_applicant_vectorizer, get_bert_model, get_faiss_index, get_recruiter_vectorizer
 from pipelines.core.applicant import run_tfidf_pipeline as applicant_tfidf, run_bert_pipeline as applicant_bert
 from pipelines.core.recruiter import rank_with_tfidf as recruiter_tfidf, rank_with_bert as recruiter_bert
 
@@ -71,7 +72,7 @@ if app_mode == "Applicant":
 
     if resume_file:
         st.success(f"✅ Successfully uploaded `{resume_file.name}`")
-        if st.button("Find Top Job Matches", type="primary", use_container_width=True):
+        if st.button("Find Top Job Matches", type="primary", width='stretch'):
             
             with st.spinner(f"Analyzing resume with {model_choice}..."):
                 
@@ -84,9 +85,20 @@ if app_mode == "Applicant":
                     raw_resume_text = extract_text_from_file(tmp_file_path)
 
                     if model_choice == "BERT":
-                        matches, message = applicant_bert(raw_resume_text, top_k=top_k)
+                        bert_model = get_bert_model()
+                        faiss_index = get_faiss_index()
+                        matches, message = applicant_bert(raw_resume_text,
+                                                          model=bert_model,
+                                                          job_index=faiss_index,
+                                                          top_k=top_k,)
+                        
                     else:
-                        matches, message = applicant_tfidf(raw_resume_text, top_k=top_k)
+                        applicant_vectorizer = get_applicant_vectorizer()
+                        applicant_matrix = get_applicant_matrix()
+                        matches, message = applicant_tfidf(raw_resume_text,
+                                                           vectorizer=applicant_vectorizer,
+                                                           job_matrix=applicant_matrix,
+                                                           top_k=top_k)
 
                     if not matches:
                         st.warning("⚠️ No suitable job matches found.")
@@ -139,7 +151,7 @@ if app_mode == "Recruiter":
 
     if job_desc_file and resume_files:
         st.success(f"✅ Successfully uploaded job description `{job_desc_file.name}` and {len(resume_files)} resumes.")
-        if st.button("Rank Resumes", type="primary", use_container_width=True):
+        if st.button("Rank Resumes", type="primary", width='stretch'):
             
             with st.spinner(f"Ranking {len(resume_files)} resumes with {model_choice}..."):
                 
@@ -166,9 +178,17 @@ if app_mode == "Recruiter":
 
                     # 3. Call the appropriate model's pipeline based on the model choice (default to TF-IDF)
                     if model_choice == "BERT":
-                        ranked_resumes, message = recruiter_bert(raw_job_text, raw_resume_texts, top_k=top_k)
+                        bert_model = get_bert_model()
+                        ranked_resumes, message = recruiter_bert(raw_job_text,
+                                                                 raw_resume_texts,
+                                                                 model=bert_model,
+                                                                 top_k=top_k)
                     else:
-                        ranked_resumes, message = recruiter_tfidf(raw_job_text, raw_resume_texts, top_k=top_k)
+                        vectorizer = get_recruiter_vectorizer()
+                        ranked_resumes, message = recruiter_tfidf(raw_job_text,
+                                                                  raw_resume_texts,
+                                                                  vectorizer=vectorizer,
+                                                                  top_k=top_k)
 
                     # 4. Display results
                     if not ranked_resumes:
@@ -187,7 +207,7 @@ if app_mode == "Recruiter":
                                                 min_value=0,
                                                 max_value=1,),
                                            },
-                                            use_container_width=True,
+                                            width='stretch',
                                             hide_index=True,
                         )
 

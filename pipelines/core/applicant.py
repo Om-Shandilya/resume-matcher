@@ -13,7 +13,9 @@ def load_job_titles(job_csv_path: str):
         raise ValueError("Job CSV must contain a 'title' column.")
     return df
 
-def run_tfidf_pipeline(raw_resume: str,
+def run_tfidf_pipeline(raw_resume: str, *,
+                       vectorizer=None,
+                       job_matrix=None,
                        local_vectorizer_path=None,
                        local_matrix_path=None,
                        repo_id="Om-Shandilya/resume-matcher-tfidf",
@@ -25,6 +27,8 @@ def run_tfidf_pipeline(raw_resume: str,
     
     Args:
         raw_resume (str): Raw text of the resume.
+        vectorizer (TfidfVectorizer, optional): Preloaded TF-IDF vectorizer.
+        job_matrix (scipy.sparse matrix, optional): Preloaded TF-IDF job matrix
         local_vectorizer_path (str, optional): Local path to TF-IDF vectorizer.
         local_matrix_path (str, optional): Local path to TF-IDF matrix.
         repo_id (str): Hugging Face repo ID for vectorizer/matrix.
@@ -38,8 +42,11 @@ def run_tfidf_pipeline(raw_resume: str,
     """
     cleaned_resume = clean_text(raw_resume)
 
-    vectorizer = load_tfidf_vectorizer(local_vectorizer_path, repo_id, vectorizer_filename)
-    job_matrix = load_tfidf_matrix(local_matrix_path, repo_id, matrix_filename)
+    if vectorizer is None:
+        vectorizer = load_tfidf_vectorizer(local_vectorizer_path, repo_id, vectorizer_filename)
+    
+    if job_matrix is None:
+        job_matrix = load_tfidf_matrix(local_matrix_path, repo_id, matrix_filename)
 
     resume_vector = vectorizer.transform([cleaned_resume])
     sim_matrix = compute_similarity_matrix(resume_vector, job_matrix)
@@ -68,10 +75,12 @@ def run_tfidf_pipeline(raw_resume: str,
             print(f"[{job_idx}] {job_df.iloc[job_idx]['title']} → {score:0.6f}")
         print("==============================================")
 
-    return [(job_df.iloc[j]['title'], score) for j, score in matches[0]],message
+    return [(job_df.iloc[j]['title'], score) for j, score in matches[0]], message
 
 
-def run_bert_pipeline(raw_resume: str,
+def run_bert_pipeline(raw_resume: str, *,
+                      model=None,
+                      job_index=None,
                       local_bert_path=None,
                       local_index_path=None,
                       repo_id="Om-Shandilya/resume-matcher-bert",
@@ -82,6 +91,8 @@ def run_bert_pipeline(raw_resume: str,
     
     Args:
         raw_resume (str): Raw text of the resume.
+        model (SentenceTransformer, optional): Preloaded BERT model.
+        job_index (faiss.Index, optional): Preloaded FAISS index.
         local_bert_path (str, optional): Local path to BERT model. 
         local_index_path (str, optional): Local path to FAISS index.
         repo_id (str): Hugging Face repo ID for model/index.
@@ -92,8 +103,11 @@ def run_bert_pipeline(raw_resume: str,
     Returns:
         List[Tuple[str, float]]: List of (job_title, score) for top_k matches.
     """
-    model = load_bert_model(local_bert_path=local_bert_path, repo_id=repo_id)
-    job_index = load_faiss_index(local_index_path, repo_id, index_filename)
+    if model is None:
+        model = load_bert_model(local_bert_path=local_bert_path, repo_id=repo_id)
+    
+    if job_index is None:
+        job_index = load_faiss_index(local_index_path, repo_id, index_filename)
 
     cleaned_resume = clean_text_for_bert(raw_resume)
     resume_embedding = model.encode([cleaned_resume], normalize_embeddings=True)
