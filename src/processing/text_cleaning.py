@@ -1,4 +1,5 @@
 import re
+import os
 import string
 import pandas as pd
 from typing import Optional
@@ -8,6 +9,8 @@ from nltk.corpus import wordnet
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 import unicodedata
+
+nltk.data.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'nltk_data'))
 
 # Only Download necessary NLTK resources if not already present
 nltk_packages = {

@@ -217,3 +217,5 @@ data/saved_plots/
 models/
 __pycache__/
 tests/
+download_nltk_data.py
+nltk_data/

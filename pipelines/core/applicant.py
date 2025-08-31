@@ -1,5 +1,7 @@
 import pandas as pd
+import os
 from pathlib import Path
+from huggingface_hub import hf_hub_download
 from src.feature_engg.tfidf_vectorizing_data import load_tfidf_vectorizer, load_tfidf_matrix
 from src.feature_engg.bert_embedding_data import load_bert_model, load_faiss_index
 from src.processing.text_cleaning import clean_text, clean_text_for_bert
@@ -7,8 +9,22 @@ from src.matching.matching_engine import compute_similarity_matrix, top_n_tfidf_
 
 # Defining paths for data files
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-def load_job_titles(job_csv_path: str):
-    df = pd.read_csv(job_csv_path)
+def load_job_titles(local_path=None, repo_id=None, filename=None):
+    """
+    Load job titles, preferring a local path if provided, otherwise
+    downloading from the Hugging Face Hub.
+    """
+    file_path = ""
+    if local_path and os.path.exists(local_path):
+        print(f"📂 Using local job titles from {local_path}")
+        file_path = local_path
+    elif repo_id and filename:
+        print(f"🌐 Downloading job titles from Hugging Face Hub ({repo_id}/{filename})")
+        file_path = hf_hub_download(repo_id=repo_id, filename=filename)
+    else:
+        raise ValueError("Must provide either a valid local_path or repo_id and filename.")
+
+    df = pd.read_csv(file_path)
     if "title" not in df.columns:
         raise ValueError("Job CSV must contain a 'title' column.")
     return df
@@ -16,6 +32,7 @@ def load_job_titles(job_csv_path: str):
 def run_tfidf_pipeline(raw_resume: str, *,
                        vectorizer=None,
                        job_matrix=None,
+                       job_df=None,
                        local_vectorizer_path=None,
                        local_matrix_path=None,
                        repo_id="Om-Shandilya/resume-matcher-tfidf",
@@ -28,7 +45,8 @@ def run_tfidf_pipeline(raw_resume: str, *,
     Args:
         raw_resume (str): Raw text of the resume.
         vectorizer (TfidfVectorizer, optional): Preloaded TF-IDF vectorizer.
-        job_matrix (scipy.sparse matrix, optional): Preloaded TF-IDF job matrix
+        job_matrix (scipy.sparse matrix, optional): Preloaded TF-IDF job matrix.
+        job_df (pd.DataFrame, optional): DataFrame of job titles.
         local_vectorizer_path (str, optional): Local path to TF-IDF vectorizer.
         local_matrix_path (str, optional): Local path to TF-IDF matrix.
         repo_id (str): Hugging Face repo ID for vectorizer/matrix.
@@ -51,7 +69,9 @@ def run_tfidf_pipeline(raw_resume: str, *,
     resume_vector = vectorizer.transform([cleaned_resume])
     sim_matrix = compute_similarity_matrix(resume_vector, job_matrix)
 
-    job_df = load_job_titles(PROJECT_ROOT / "data/app_data/tfidf_job_titles.csv")
+    if job_df is None:    
+        job_df = load_job_titles(repo_id='Om-Shandilya/resume-matcher-tfidf', filename='applicant/tfidf_job_titles.csv')
+    
     total_jobs = len(job_df['title'].unique())
 
     message = ""
@@ -81,6 +101,7 @@ def run_tfidf_pipeline(raw_resume: str, *,
 def run_bert_pipeline(raw_resume: str, *,
                       model=None,
                       job_index=None,
+                      job_df=None,
                       local_bert_path=None,
                       local_index_path=None,
                       repo_id="Om-Shandilya/resume-matcher-bert",
@@ -93,6 +114,7 @@ def run_bert_pipeline(raw_resume: str, *,
         raw_resume (str): Raw text of the resume.
         model (SentenceTransformer, optional): Preloaded BERT model.
         job_index (faiss.Index, optional): Preloaded FAISS index.
+        job_df (pd.DataFrame, optional): DataFrame of job titles.
         local_bert_path (str, optional): Local path to BERT model. 
         local_index_path (str, optional): Local path to FAISS index.
         repo_id (str): Hugging Face repo ID for model/index.
@@ -113,7 +135,10 @@ def run_bert_pipeline(raw_resume: str, *,
     resume_embedding = model.encode([cleaned_resume], normalize_embeddings=True)
 
     D, I = job_index.search(resume_embedding, job_index.ntotal)
-    job_df = load_job_titles(PROJECT_ROOT / "data/app_data/bert_job_titles.csv")
+    
+    if job_df is None:
+        job_df = load_job_titles(repo_id='Om-Shandilya/resume-matcher-bert', filename='applicant/bert_job_titles.csv')
+    
     total_jobs = len(job_df['title'].unique())
 
     message = ""

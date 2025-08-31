@@ -100,17 +100,30 @@ def bert_embed_text(df: pd.DataFrame,
     return embeddings, model
 
 
-def load_faiss_index(local_index_path: str, repo_id: str, filename: str):
-    """Load FAISS index, preferring local then HF Hub."""
+import faiss
+import os
+from huggingface_hub import hf_hub_download
+
+def load_faiss_index(local_index_path: str, repo_id: str, filename: str, lazy_loading: bool = True):
+    """
+    Load FAISS index, preferring local then HF Hub. Applies lazy loading by default.
+    """
+    index_path = ""
     if local_index_path:
         if not os.path.exists(local_index_path):
             raise FileNotFoundError(f"❌ Local FAISS index not found at {local_index_path}")
-        print(f"📂 Loading local FAISS index from {local_index_path}")
-        return faiss.read_index(local_index_path)
-
-    print(f"🌐 Downloading FAISS index from Hugging Face Hub ({repo_id}/{filename})")
-    faiss_path = hf_hub_download(repo_id=repo_id, filename=filename)
-    return faiss.read_index(faiss_path)
+        print(f"📂 Using local FAISS index from {local_index_path}")
+        index_path = local_index_path
+    else:
+        print(f"🌐 Downloading FAISS index from Hugging Face Hub ({repo_id}/{filename})")
+        index_path = hf_hub_download(repo_id=repo_id, filename=filename)
+    
+    if lazy_loading:
+        print("   -> Loading with lazy loading (MMAP).")
+        return faiss.read_index(index_path, faiss.IO_FLAG_MMAP)
+    else:
+        print("   -> Loading into memory directly.")
+        return faiss.read_index(index_path)
 
 def load_bert_model(local_bert_path: str, repo_id: str='Om-Shandilya/resume-matcher-bert'):
     """

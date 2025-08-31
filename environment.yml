@@ -1,38 +1,29 @@
-# Tested on Windows 11 with NVIDIA GPU (CUDA driver 13.0, PyTorch CUDA 12.1 build)
-# Use: conda env create -f environment.yml
-
 name: resume-matcher
 channels:
+  - pytorch
   - conda-forge
   - defaults
 dependencies:
   - python=3.10
   - pip
-  # Core scientific stack
-  - numpy
+  # --- Core Application Dependencies ---
+  - fastapi
+  - uvicorn
+  - streamlit
+  - altair
   - pandas
   - scikit-learn
-  - scipy
   - joblib
-  - tqdm
-  - matplotlib
-  - seaborn
-  - wordcloud
-  # NLP / ML essentials
+  - pytorch
   - faiss-cpu
-  - nltk
-  - statsmodels
   - huggingface_hub
-  # File handling
-  - openpyxl
-  - lxml
-  - pillow
-  - pyyaml
-  - python-docx
   - pdfminer.six
-  # pip-only packages
+  - python-docx
+  - requests
+  - nltk
+  - scipy
+  - anyio
+  # --- Pip-only packages ---
   - pip:
       - sentence-transformers
-      - transformers
-      - accelerate
-      - datasets
+      - python-multipart
