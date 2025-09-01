@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🧠 ResumeMatch AI
 
 A smart, dual-purpose machine learning project that empowers **job seekers** and **recruiters** with intelligent, automated resume-job matching.
@@ -45,3 +46,17 @@ To use this project:
    ↳ Job dataset used for training [Kaggle](https://www.kaggle.com/datasets/ravindrasinghrana/job-description-dataset?select=job_descriptions.csv)
 2. Place resume dataset in the `data/raw/resumes` directory and the jobs dataset in `data/raw/job_descriptions`.
 3. You're good to go!
+=======
+---
+title: Resume Matcher Api
+emoji: 🐢
+colorFrom: blue
+colorTo: blue
+sdk: docker
+pinned: false
+license: apache-2.0
+short_description: 'Here lies the RESTful API Backend for the Resume-Matcher '
+---
+
+Check out the configuration reference at https://huggingface.co/docs/hub/spaces-config-reference
+>>>>>>> 257299069a173f2ad35c2e47bf3c6bf5f1fccab4
