@@ -5,24 +5,18 @@ import pandas as pd
 from typing import Optional
 import nltk
 from nltk import pos_tag
-from nltk.corpus import wordnet
+from nltk.corpus import wordnet, stopwords
 from nltk.stem import WordNetLemmatizer
 import unicodedata
 
-def load_stopwords_from_file():
-    # Construct an absolute path to the stopwords file, making this script portable.
-    project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    stopwords_path = os.path.join(project_root, "data", "stopwords.txt")
-    try:
-        with open(stopwords_path, "r") as f:
-            # Use a set for efficient O(1) lookups.
-            return set(line.strip() for line in f)
-    except FileNotFoundError:
-        print(f"Warning: stopwords.txt not found at {stopwords_path}. Stopword removal will be skipped.")
-        return set()
+# clearing NLTK's default search paths and telling it to only look
+# in the 'nltk_data' folder that is included with our project.
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+local_nltk_data = os.path.join(project_root, "nltk_data")
+nltk.data.path = [local_nltk_data]
 
 lemmatizer = WordNetLemmatizer()
-stop_words = load_stopwords_from_file()
+stop_words = set(stopwords.words('english'))
 
 def get_wordnet_pos(tag):
     """

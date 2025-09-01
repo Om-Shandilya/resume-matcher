@@ -217,9 +217,19 @@ data/saved_plots/
 models/
 __pycache__/
 tests/
-nltk_data/
 models/
 data/app_data/
 README-api.md
 README-app.md
 README-git.md
+cache/
+.vscode/
+.idea/
+*.DS_Store
+
+# Ignore all files directly inside nltk_data, like the .zip files
+nltk_data/*
+# Keep the essential subdirectories
+!nltk_data/corpora/
+!nltk_data/taggers/
+!nltk_data/tokenizers/
