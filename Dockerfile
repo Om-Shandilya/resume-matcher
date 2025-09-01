@@ -4,10 +4,10 @@ FROM python:3.10-slim
 # Setting the default working directory.
 WORKDIR /code
 
-# Setting the Hugging Face home directory to a local folder inside the project.
-# This forces all transformers/datasets/hub downloads to be stored in /code/cache,
-# Helps avoiding PermissionErrors.
+# Set the Hugging Face home directory to a local folder inside our project.
 ENV HF_HOME /code/cache/
+# Pre-creating the cache directory with the correct permissions during the build.
+RUN mkdir -p /code/cache/
 
 # Copying and installing Python dependencies.
 COPY requirements.txt .
