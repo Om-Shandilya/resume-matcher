@@ -1,12 +1,13 @@
 ---
-title: Resume Matcher API
-emoji: 🚀
+title: Resume Matcher App
+emoji: 🎯
 colorFrom: blue
 colorTo: green
-sdk: docker
+sdk: streamlit
+main: gui/app.py
 pinned: false
 ---
 
-# Resume-Job Matcher API (Backend)
+# Resume-Job Matcher GUI (Frontend)
 
-This is the FastAPI backend for the AI-Powered Resume-Job Matcher. It is deployed as a Docker container and provides the core matching and ranking functionality.
+This is the Streamlit frontend for the AI-Powered Resume-Job Matcher. It communicates with a separate FastAPI backend to provide real-time matching and ranking.
