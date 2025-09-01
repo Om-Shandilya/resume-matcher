@@ -15,12 +15,12 @@ from src.utils.bulk_loading import bulk_load_raw_resume_files
 from src.utils.file_reader import extract_text_from_file
 
 # Configuring the backend API URL
-API_URL = "http://127.0.0.1:8000" 
+API_URL = "https://om-shandilya-resume-matcher-api.hf.space"
 
 # Configuring the Streamlit app
 st.set_page_config(
     page_title="Resume-Job Matcher",
-    page_icon="👨‍💼",
+    page_icon="🎯",
     layout="wide"
 )
 
@@ -34,7 +34,7 @@ with st.sidebar:
     app_mode = st.radio(
         "Choose your view",
         ("Applicant", "Recruiter"),
-        help="Select 'Applicant' to match your resume to jobs. Select 'Recruiter' to rank resumes for a job."
+        help="Select 'Applicant' to match your resume to jobs titles. Select 'Recruiter' to rank resumes for a job."
     )
     model_choice = st.selectbox(
         "Choose the AI Model",
@@ -106,7 +106,7 @@ if app_mode == "Applicant":
                         st.altair_chart(chart, use_container_width=True)
 
                 except requests.exceptions.RequestException as e:
-                    st.error(f"API Error: Could not connect to the backend. Please ensure the backend server is running. Details: {e}")
+                    st.error(f"API Error:⚠️ Could not connect to the backend. Please ensure the backend server is running. Details: {e}")
                 except Exception as e:
                     st.error(f"An error occurred: {e}")
                 finally:
