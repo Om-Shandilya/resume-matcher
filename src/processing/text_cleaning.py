@@ -10,10 +10,6 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 import unicodedata
 
-# Ensure required NLTK data packages are available
-project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-nltk.data.path.append(os.path.join(project_root, "nltk_data"))
-
 lemmatizer = WordNetLemmatizer()
 stop_words = set(stopwords.words('english'))
 
