@@ -14,9 +14,6 @@ RUN mkdir -p /code/cache/ && \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Downloading necessary NLTK data files.
-RUN python -m nltk.downloader wordnet averaged_perceptron_tagger averaged_perceptron_tagger_eng omw-1.4 punkt
-
 # Copying the application code into the container.
 COPY . .
 
