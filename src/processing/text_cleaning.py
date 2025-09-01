@@ -17,6 +17,7 @@ nltk_packages = {
     "stopwords": "corpora/stopwords",
     "wordnet": "corpora/wordnet",
     "averaged_perceptron_tagger": "taggers/averaged_perceptron_tagger",
+    "averaged_perceptron_tagger_eng": "taggers/averaged_perceptron_tagger_eng",
     "omw-1.4": "corpora/omw-1.4"
 }
 
