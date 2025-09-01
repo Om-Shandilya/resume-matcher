@@ -4,6 +4,7 @@ from huggingface_hub import hf_hub_download
 import pandas as pd
 import sys
 import os
+import logging
 
 # This ensures that the backend can find your 'src' and 'pipelines' modules and also adds the parent directory to sys.path.
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -95,6 +96,7 @@ async def match_resume_bert(request: ResumeRequest):
         response_matches = [JobMatch(job_title=title, match_score=score) for title, score in matches]
         return ApplicantResponse(matches=response_matches, message=message)
     except Exception as e:
+        logging.exception("Error in /applicant/match/bert endpoint")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/applicant/match/tf-idf", response_model=ApplicantResponse)
@@ -110,6 +112,7 @@ async def match_resume_tfidf(request: ResumeRequest):
         response_matches = [JobMatch(job_title=title, match_score=score) for title, score in matches]
         return ApplicantResponse(matches=response_matches, message=message)
     except Exception as e:
+        logging.exception("Error in /applicant/match/tf-idf endpoint")
         raise HTTPException(status_code=500, detail=str(e))
         
 
@@ -126,6 +129,7 @@ async def rank_resumes_bert(request: RecruiterRequest):
         response_matches = [ResumeMatch(resume_filename=fname, match_score=score) for fname, score in matches]
         return RecruiterResponse(matches=response_matches, message=message)
     except Exception as e:
+        logging.exception("Error in /recruiter/rank/bert endpoint")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/recruiter/rank/tf-idf", response_model=RecruiterResponse)
@@ -140,4 +144,5 @@ async def rank_resumes_tfidf(request: RecruiterRequest):
         response_matches = [ResumeMatch(resume_filename=fname, match_score=score) for fname, score in matches]
         return RecruiterResponse(matches=response_matches, message=message)
     except Exception as e:
+        logging.exception("Error in /recruiter/rank/tf-idf endpoint")
         raise HTTPException(status_code=500, detail=str(e))
