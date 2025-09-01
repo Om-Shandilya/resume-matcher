@@ -109,7 +109,7 @@ def tfidf_vectorize_text(df: pd.DataFrame,
     return X, vectorizer
 
 
-def load_tfidf_vectorizer(local_vectorizer_path: str, repo_id: str, filename: str):
+def load_tfidf_vectorizer(repo_id: str, filename: str, local_vectorizer_path: str=None):
     """Load TF-IDF vectorizer, preferring local then HF Hub."""
     if local_vectorizer_path:
         if not os.path.exists(local_vectorizer_path):
@@ -121,7 +121,7 @@ def load_tfidf_vectorizer(local_vectorizer_path: str, repo_id: str, filename: st
     vec_path = hf_hub_download(repo_id=repo_id, filename=filename)
     return joblib.load(vec_path)
 
-def load_tfidf_matrix(local_matrix_path: str, repo_id: str, filename: str):
+def load_tfidf_matrix(repo_id: str, filename: str, local_matrix_path: str=None):
     """Load TF-IDF matrix, preferring local then HF Hub."""
     if local_matrix_path:
         if not os.path.exists(local_matrix_path):

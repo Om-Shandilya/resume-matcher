@@ -104,7 +104,7 @@ import faiss
 import os
 from huggingface_hub import hf_hub_download
 
-def load_faiss_index(local_index_path: str, repo_id: str, filename: str, lazy_loading: bool = True):
+def load_faiss_index(repo_id: str, filename: str, lazy_loading: bool = True, local_index_path: str=None):
     """
     Load FAISS index, preferring local then HF Hub. Applies lazy loading by default.
     """
@@ -125,7 +125,7 @@ def load_faiss_index(local_index_path: str, repo_id: str, filename: str, lazy_lo
         print("   -> Loading into memory directly.")
         return faiss.read_index(index_path)
 
-def load_bert_model(local_bert_path: str, repo_id: str='Om-Shandilya/resume-matcher-bert'):
+def load_bert_model(repo_id: str='Om-Shandilya/resume-matcher-bert', local_bert_path: str=None):
     """
     Load a SentenceTransformer BERT model:
     - If local_model_path is provided, it must be a valid path.
