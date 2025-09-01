@@ -27,8 +27,8 @@ async def lifespan(app: FastAPI):
     print("🚀 Server starting up: Loading ML models and data...")
     
     # --- Load BERT Models ---
-    ml_models["bert_model"] = load_bert_model(repo_id="Om-Shandilya/resume-matcher-bert")
-    ml_models["faiss_index"] = load_faiss_index(repo_id="Om-Shandilya/resume-matcher-bert", filename="applicant/jobs.faiss")
+    ml_models["bert_model"] = load_bert_model(repo_id="Om-Shandilya/resume-matcher-bert", local_bert_path=None)
+    ml_models["faiss_index"] = load_faiss_index(repo_id="Om-Shandilya/resume-matcher-bert", filename="applicant/jobs.faiss", local_index_path=None)
     ml_models["bert_job_df"] = load_job_titles(repo_id='Om-Shandilya/resume-matcher-bert', filename='applicant/bert_job_titles.csv')
 
     # --- Build TF-IDF Models from Cleaned Source Data ---
