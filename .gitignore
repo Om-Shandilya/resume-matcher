@@ -220,3 +220,5 @@ tests/
 nltk_data/
 models/
 data/app_data/
+README-api.md
+README-app.md
