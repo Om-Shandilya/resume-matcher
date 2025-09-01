@@ -218,3 +218,5 @@ models/
 __pycache__/
 tests/
 nltk_data/
+models/
+data/app_data/
