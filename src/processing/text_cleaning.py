@@ -10,24 +10,10 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 import unicodedata
 
-nltk.data.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'nltk_data'))
+# Ensure required NLTK data packages are available
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+nltk.data.path.append(os.path.join(project_root, "nltk_data"))
 
-# Only Download necessary NLTK resources if not already present
-nltk_packages = {
-    "stopwords": "corpora/stopwords",
-    "wordnet": "corpora/wordnet",
-    "averaged_perceptron_tagger": "taggers/averaged_perceptron_tagger",
-    "averaged_perceptron_tagger_eng": "taggers/averaged_perceptron_tagger_eng",
-    "omw-1.4": "corpora/omw-1.4"
-}
-
-for pkg, path in nltk_packages.items():
-    try:
-        nltk.data.find(path)
-    except LookupError:
-        nltk.download(pkg, quiet=True)
-
-# Initialize lemmatizer and stopwords
 lemmatizer = WordNetLemmatizer()
 stop_words = set(stopwords.words('english'))
 
