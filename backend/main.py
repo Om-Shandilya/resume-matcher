@@ -35,7 +35,7 @@ async def lifespan(app: FastAPI):
     # Loading TF-IDF Models
     print("📂 Loading pre-computed TF-IDF models...")
     ml_models["applicant_vectorizer"] = load_tfidf_vectorizer(repo_id="Om-Shandilya/resume-matcher-tfidf", filename="applicant/job_vectorizer.pkl", local_vectorizer_path=None)
-    ml_models["applicant_matrix"] = load_tfidf_matrix(repo_id="Om-Shandilya/resume-matcher-tfidf", matrix_filename="applicant/job_matrix.npz", local_matrix_path=None)
+    ml_models["applicant_matrix"] = load_tfidf_matrix(repo_id="Om-Shandilya/resume-matcher-tfidf", filename="applicant/job_matrix.npz", local_matrix_path=None)
     ml_models["recruiter_vectorizer"] = load_tfidf_vectorizer(repo_id="Om-Shandilya/resume-matcher-tfidf", filename="recruiter/combined_vectorizer.pkl", local_vectorizer_path=None)
     ml_models["tfidf_job_df"] = load_job_titles(repo_id='Om-Shandilya/resume-matcher-tfidf', filename='applicant/tfidf_job_titles.csv', local_path=None)
     
