@@ -6,11 +6,6 @@ import pandas as pd
 import shutil
 import altair as alt
 import requests # Import for making API requests
-
-# Ensure the parent directory is in sys.path for imports
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-if PROJECT_ROOT not in sys.path:
-    sys.path.append(PROJECT_ROOT)
 from src.utils.bulk_loading import bulk_load_raw_resume_files
 from src.utils.file_reader import extract_text_from_file
 
