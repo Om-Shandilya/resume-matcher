@@ -16,7 +16,7 @@ from backend.models import (ResumeRequest, ApplicantResponse, JobMatch,
 from pipelines.core.applicant import  run_bert_pipeline, run_tfidf_pipeline, load_job_titles
 from pipelines.core.recruiter import  rank_with_bert, rank_with_tfidf
 from src.feature_engg.bert_embedding_data import load_bert_model, load_faiss_index
-from src.feature_engg.tfidf_vectorizing_data import get_tfidf_vectorizer, get_combined_tfidf_vectorizer, tfidf_vectorize_text
+from src.feature_engg.tfidf_vectorizing_data import load_tfidf_vectorizer, load_tfidf_matrix
 
 # In memory storage for models (dictionary to hold all loaded models):
 ml_models = {}
@@ -25,45 +25,19 @@ ml_models = {}
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """This code runs ONCE when the server starts up."""
-    print("🚀 Server starting up: Loading ML models and data...")
+    print("🚀 Server starting up: Loading all ML models and data from the Hub...")
     
-    # --- Load BERT Models ---
+    # Loading BERT Models
     ml_models["bert_model"] = load_bert_model(repo_id="Om-Shandilya/resume-matcher-bert", local_bert_path=None)
-    ml_models["faiss_index"] = load_faiss_index(repo_id="Om-Shandilya/resume-matcher-bert", filename="applicant/jobs.faiss", local_index_path=None)
-    ml_models["bert_job_df"] = load_job_titles(repo_id='Om-Shandilya/resume-matcher-bert', filename='applicant/bert_job_titles.csv')
+    ml_models["faiss_index"] = load_faiss_index(repo_id="Om-Shandilya/resume-matcher-bert", filename="applicant/jobs.faiss", lazy_loading=True, local_index_path=None)
+    ml_models["bert_job_df"] = load_job_titles(repo_id='Om-Shandilya/resume-matcher-bert', filename='applicant/bert_job_titles.csv', local_path=None)
 
-    # --- Build TF-IDF Models from Cleaned Source Data ---
-    print("🔧 Building TF-IDF models from pre-cleaned source data...")
-    # 1. Download the pre-cleaned job descriptions
-    cleaned_jobs_path = hf_hub_download(repo_id="Om-Shandilya/resume-matcher-tfidf", filename="applicant/cleaned_jobs.csv")
-    cleaned_jobs_df = pd.read_csv(cleaned_jobs_path)
-    
-    # 2. Build the Applicant model using your utility function
-    applicant_matrix, applicant_vectorizer = tfidf_vectorize_text(
-        df=cleaned_jobs_df,
-        text_column='text_cleaned',
-        label='applicant',
-        vectorizer=get_tfidf_vectorizer(),
-        fit_vectorizer=True
-    )
-    ml_models["applicant_matrix"] = applicant_matrix
-    ml_models["applicant_vectorizer"] = applicant_vectorizer
-    ml_models["tfidf_job_df"] = load_job_titles(repo_id='Om-Shandilya/resume-matcher-tfidf', filename='applicant/tfidf_job_titles.csv')
-
-    # 3. Download the combined pre-cleaned data for the recruiter model
-    combined_cleaned_path = hf_hub_download(repo_id="Om-Shandilya/resume-matcher-tfidf", filename="recruiter/cleaned_combined_corpus.csv")
-    combined_cleaned_df = pd.read_csv(combined_cleaned_path)
-    
-    # 4. Build the Recruiter model
-    _, recruiter_vectorizer = tfidf_vectorize_text(
-        df=combined_cleaned_df,
-        text_column='text_cleaned',
-        label='recruiter',
-        vectorizer=get_combined_tfidf_vectorizer(),
-        fit_vectorizer=True
-    )
-    ml_models["recruiter_vectorizer"] = recruiter_vectorizer
-    print("✅ TF-IDF models built successfully.")
+    # Loading TF-IDF Models
+    print("📂 Loading pre-computed TF-IDF models...")
+    ml_models["applicant_vectorizer"] = load_tfidf_vectorizer(repo_id="Om-Shandilya/resume-matcher-tfidf", filename="applicant/job_vectorizer.pkl", local_vectorizer_path=None)
+    ml_models["applicant_matrix"] = load_tfidf_matrix(repo_id="Om-Shandilya/resume-matcher-tfidf", matrix_filename="applicant/job_matrix.npz", local_matrix_path=None)
+    ml_models["recruiter_vectorizer"] = load_tfidf_vectorizer(repo_id="Om-Shandilya/resume-matcher-tfidf", filename="recruiter/combined_vectorizer.pkl", local_vectorizer_path=None)
+    ml_models["tfidf_job_df"] = load_job_titles(repo_id='Om-Shandilya/resume-matcher-tfidf', filename='applicant/tfidf_job_titles.csv', local_path=None)
     
     print("✅ All models and data loaded successfully.")
     yield
