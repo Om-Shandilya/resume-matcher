@@ -1,6 +1,6 @@
 # 🎯 AI-Powered Resume-Job Matcher
 
-Welcome to the official repository for the AI-Powered Resume-Job Matcher! This project is a comprehensive, full-stack application designed to streamline the recruitment process by intelligently matching candidates to job opportunities. After a long journey of development, debugging, and deployment, we're thrilled to present a robust and scalable solution.
+Welcome to the official repository for the AI-Powered Resume-Job Matcher! This project is a comprehensive, full-stack application designed to streamline the recruitment process by intelligently matching candidates to job opportunities. After a long journey of development, debugging, and deployment, I'm thrilled to present a robust and scalable solution.
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python Version](https://img.shields.io/badge/Python-3.10-blue.svg)](https://www.python.org/downloads/release/python-3100/)
@@ -107,14 +107,20 @@ The Streamlit application will open in your browser at `http://localhost:8501`.
 ├── backend/
 │   ├── main.py         # FastAPI application logic and endpoints
 │   └── models.py       # Pydantic data models for the API
-├── data/
-│   └── stopwords.txt   # Self-contained stopwords list
+├── nltk_data/
+│   ├── corpora/        # NLTK corpora like stopwords, wordnet etc.
+│   ├── taggers/        # NLTK POS tagger data, averaged_perceptron_tagger
+│   └── tokenizers/     # NLTK tokenizers data, punkt
 ├── pipelines/
 │   └── core/           # Core matching and ranking logic
 ├── src/
+│   ├── data/           # Scripts for laoding and saving data
 │   ├── feature_engg/   # Scripts for vectorization and embedding
+│   ├── fine_tuning/    # Script to do DAPT fine-tuning on the BERT model
+│   ├── mstching/       # Scripts for getting top_n matches for TF-IDF and BERT
 │   ├── processing/     # Text cleaning and pre-processing utilities
-│   └── utils/          # General utility scripts
+│   ├── utils/          # General utility scripts
+│   └── visualization/  # EDA and visualization utilities mainly for dev phase
 ├── .gitignore
 ├── app.py              # Main Streamlit frontend application script
 ├── Dockerfile          # Instructions for building the backend container
@@ -128,4 +134,4 @@ The Streamlit application will open in your browser at `http://localhost:8501`.
 
 This project is licensed under the **Apache 2.0 License**. See the `LICENSE` file for details.
 
-We hope you find this project useful and insightful. Happy matching!
+I hope you find this project useful and insightful. Happy matching!
