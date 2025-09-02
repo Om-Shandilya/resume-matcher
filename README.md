@@ -8,7 +8,7 @@ Welcome to the official repository for the AI-Powered Resume-Job Matcher! This p
 
 ---
 
-## 🚀 Live Demos
+## 🤖 Live Demos
 
 Experience the application live! The project is deployed as two separate, communicating services on Hugging Face Spaces.
 

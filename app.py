@@ -15,12 +15,12 @@ API_URL = "https://om-shandilya-resume-matcher-api.hf.space"
 # Configuring the Streamlit app
 st.set_page_config(
     page_title="Resume-Job Matcher",
-    page_icon="🎯",
+    page_icon="📊",
     layout="wide"
 )
 
 # Main app title and description
-st.title("🎯 AI-Powered Resume-Job Matcher")
+st.title("⇒ AI-Powered Resume-Job Matcher")
 st.write("---")
 
 # Creating sidebar for controls
@@ -89,7 +89,7 @@ if app_mode == "Applicant":
                         st.info(message)
                         st.subheader(f"Top {len(matches)} Job Matches:")
                         
-                        df = pd.DataFrame(matches) # Pandas handles list of dicts perfectly
+                        df = pd.DataFrame(matches)
                         df = df.sort_values(by="match_score", ascending=False).reset_index(drop=True)
 
                         chart = alt.Chart(df).mark_bar().encode(
