@@ -13,7 +13,7 @@ Welcome to the official repository for the AI-Powered Resume-Job Matcher! This p
 Experience the application live! The project is deployed as two separate, communicating services on Hugging Face Spaces.
 
 * **Frontend GUI (Streamlit App)**: [**Access the Live Application Here**](https://huggingface.co/spaces/Om-Shandilya/resume-matcher-app)
-* **Backend API (FastAPI Docs)**: [**Explore the API Documentation Here**](https://huggingface.co/spaces/Om-Shandilya/resume-matcher-api/docs)
+* **Backend API (FastAPI Docs)**: [**Explore the API Documentation Here**](https://om-shandilya-resume-matcher-api.hf.space/docs#)
 
 ---
 
